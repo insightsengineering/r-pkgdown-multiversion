@@ -13,5 +13,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - run: cd ${{ inputs.path }} ; Rscript ${{ github.action_path }}/pkgdown-multisite.R ${{ inputs.release_name }}
+    - run: |
+        cd ${{ inputs.path }} 
+        pwd 
+        ls -alh
+        Rscript ${{ github.action_path }}pkgdown-multisite.R ${{ inputs.release_name }}
       shell: bash
