@@ -1,0 +1,25 @@
+---
+name: Test action for multisite pkgdown
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+      - pre-release
+      - pkgdown_multisite
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    name: test1
+    container:
+      image: ghcr.io/insightsengineering/rstudio_4.1.0_bioc_3.13:latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Test staged dependencies for elecinfra
+        uses: ./
