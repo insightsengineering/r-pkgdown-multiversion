@@ -17,5 +17,7 @@ runs:
         cd ${{ inputs.path }} 
         pwd 
         ls -alh
+        echo -e "github actions path:" 
+        ls -alh ${{ github.action_path }}
         Rscript ${{ github.action_path }}pkgdown-multisite.R ${{ inputs.release_name }}
       shell: bash
