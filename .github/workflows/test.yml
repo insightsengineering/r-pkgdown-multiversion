@@ -20,6 +20,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+    
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          repository: "Roche/rtables"
+          path: "rtables"
+          ref: "gh-pages"
 
-      - name: Test staged dependencies for elecinfra
+      - name: Test multisite repo
         uses: ./
+        with:
+          path: "rtables"
+          release_name: "latest"
