@@ -20,8 +20,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        with:
-          path: "r-pkgdown-multisite"
+        # with:
+        #   path: "."
     
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
           pwd
 
       - name: Test multisite repo
-        uses: ./../r-pkgdown-multisite/
+        uses: ./
         with:
           path: "rtables"
           release_name: "latest"

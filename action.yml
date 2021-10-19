@@ -14,7 +14,6 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        cd ${{ inputs.path }} 
         pwd 
         ls -alh
         echo -e "github actions path:" 

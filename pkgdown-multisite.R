@@ -5,6 +5,8 @@ args = commandArgs(trailingOnly=TRUE)
 stopifnot(length(args) == 2)
 
 repo_name = args[1]
+setwd(repo_name)
+
 release_name = args[2] # latest/main, pre-release or new_tag_string (e.g. "v0.8.0")
 
 cat(paste("repo_name:", repo_name, "\n"))
