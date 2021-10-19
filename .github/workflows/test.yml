@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          path: "r-pkgdown-multisite"
     
       - name: Checkout repo
         uses: actions/checkout@v2
