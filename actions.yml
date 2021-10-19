@@ -11,8 +11,7 @@ inputs:
     required: true
     default: "main"
 runs:
-  using: 'docker'
-  image: 'docker://ghcr.io/insightsengineering/rstudio_4.1.0_bioc_3.13:latest'
+  using: 'composite'
   steps:
-    - run: Rscript ${{ github.action_path }}/pkgdown-multisite.R ${{ inputs.release_name }}
+    - run: cd ${{ inputs.path }} ; Rscript ${{ github.action_path }}/pkgdown-multisite.R ${{ inputs.release_name }}
       shell: bash
