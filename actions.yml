@@ -1,0 +1,18 @@
+name: R pkgdown multisite docs
+author: Insights Engineering
+description: Github Action that generates multisite R documentation created with pkgdown. Modification is done on previously generated gh-pages branch
+inputs:
+  path:
+    description: Path to package's root
+    required: false
+    default: "."
+  release_name:
+    description: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
+    required: true
+    default: "main"
+runs:
+  using: 'docker'
+  image: 'docker://ghcr.io/insightsengineering/rstudio_4.1.0_bioc_3.13:latest'
+  steps:
+    - run: Rscript ${{ github.action_path }}/pkgdown-multisite.R ${{ inputs.release_name }}
+      shell: bash
