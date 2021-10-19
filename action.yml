@@ -15,8 +15,7 @@ runs:
   steps:
     - run: |
         pwd 
-        ls -alh
         echo -e "github actions path:" 
-        ls -alh ${{ github.action_path }}
-        Rscript ${{ github.action_path }}pkgdown-multisite.R ${{ inputs.release_name }}
+        ls -alh ${GITHUB_ACTION_PATH}
+        Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.release_name }}
       shell: bash
