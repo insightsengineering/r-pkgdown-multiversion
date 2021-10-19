@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     name: test1
     container:
-      image: ghcr.io/insightsengineering/rstudio_4.1.0_bioc_3.13:latest
+      image: ghcr.io/insightsengineering/verse_4.1.0_bioc_3.13:latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
