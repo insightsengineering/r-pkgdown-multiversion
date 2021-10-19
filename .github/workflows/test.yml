@@ -29,6 +29,9 @@ jobs:
           repository: "Roche/rtables"
           path: "rtables"
           ref: "gh-pages"
+      - run: |
+          ls
+          pwd
 
       - name: Test multisite repo
         uses: ./../r-pkgdown-multisite/
