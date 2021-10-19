@@ -31,7 +31,7 @@ jobs:
           ref: "gh-pages"
 
       - name: Test multisite repo
-        uses: ./r-pkgdown-multisite/
+        uses: ../r-pkgdown-multisite/
         with:
           path: "rtables"
           release_name: "latest"
