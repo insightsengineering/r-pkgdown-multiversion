@@ -7,8 +7,6 @@ on:
       - "v*"
     branches:
       - main
-      - pre-release
-      - pkgdown_multisite
   pull_request:
 
 jobs:
@@ -20,8 +18,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        # with:
-        #   path: "."
     
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -29,9 +25,6 @@ jobs:
           repository: "Roche/rtables"
           path: "rtables"
           ref: "gh-pages"
-      - run: |
-          ls
-          pwd
 
       - name: Test multisite repo
         uses: ./

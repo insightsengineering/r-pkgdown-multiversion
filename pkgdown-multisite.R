@@ -1,9 +1,31 @@
 library(httr)
 print("starting r script")
 
-args = commandArgs(trailingOnly=TRUE)
-stopifnot(length(args) == 2)
+html_template = function(fname = ""){
 
+  dir_level = length(strsplit(fname, '/')[[1]])-1
+  dir_level = paste(rep("../", dir_level), sep="", collapse="")
+
+  a = '<!-- start_releases -->'
+  a = c(a, '<li class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">')
+  a = c(a, "Other releases")
+  a = c(a, '<span class="caret"></span></a><ul class="dropdown-menu" role="menu">')
+  a = c(a, paste0('   <li><a href="', dir_level, 'index.html">latest</a></li>'))
+  a = c(a, paste0('   <li><a href="', dir_level, releases, '/index.html">', releases, '</a></li>'))
+  a = c(a, '</ul></li>')
+  a = c(a, '<!-- end_releases -->')
+  return(a)
+}
+
+
+args = commandArgs(trailingOnly=TRUE)
+if(length(args) != 2){
+  stop('2 arguments for executing the script are needed, including reponame: 
+  (e.g. "teal.modules.clinical") and release_name: (e.g. "latest" or "v1.0.0")
+  
+       Rscript pkgdown-multisite.R "teal.modules.clinical" "latest"')
+}
 repo_name = args[1]
 setwd(repo_name)
 
@@ -38,26 +60,11 @@ if(release_name != "latest"){
   lapply(dirs, function(x) dir.create(paste0(release_name, "/", x),
                                        showWarnings = FALSE, recursive = TRUE))
   # and copy there:
-  file.copy(files, paste0(release_name, "/", files), overwrite = TRUE, copy.mode = TRUE)
+  file.copy(files, paste0(release_name, "/", files), overwrite = TRUE)
   # update release drop-down menu list:
   releases = unique(c(release_name, releases))
 }
 
-html_template = function(fname = ""){
-
-  dir_level = length(strsplit(fname, '/')[[1]])-1
-  dir_level = paste(rep("../", dir_level), sep="", collapse="")
-
-  a = '<!-- start_releases -->'
-  a = c(a, '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">')
-  a = c(a, "Other releases")
-  a = c(a, '<span class="caret"></span></a><ul class="dropdown-menu" role="menu">')
-  a = c(a, paste0('   <li><a href="', dir_level, 'index.html">latest</a></li>'))
-  a = c(a, paste0('   <li><a href="', dir_level, releases, '/index.html">', releases, '</a></li>'))
-  a = c(a, '</ul></li>')
-  a = c(a, '<!-- end_releases -->')
-  return(a)
-}
 
 # get list of files to be modified and create changes where needed
 html_files = dir(pattern = ".html$", include.dirs = FALSE, recursive = TRUE)

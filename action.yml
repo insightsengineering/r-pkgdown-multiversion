@@ -20,4 +20,3 @@ runs:
         Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
       shell: bash
 
-      
