@@ -1,0 +1,33 @@
+---
+name: Test action for multisite pkgdown
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    name: test1
+    container:
+      image: ghcr.io/insightsengineering/verse_4.1.0_bioc_3.13:latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+    
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          repository: "Roche/rtables"
+          path: "rtables"
+          ref: "gh-pages"
+
+      - name: Test multisite repo
+        uses: ./
+        with:
+          path: "rtables"
+          release_name: "latest"
