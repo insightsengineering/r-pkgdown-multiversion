@@ -33,7 +33,7 @@ jobs:
         with:
           path: "rtables"
           release_name: "latest"
-          
+
       - name: Show result
         run: |
           if [ `git diff | wc -l` != 0 ]
@@ -43,4 +43,4 @@ jobs:
                 echo "No changes detected"
                 return -1
           fi
-        script: sh
+        shell: sh
