@@ -18,10 +18,10 @@ jobs:
     container:
       image: ghcr.io/insightsengineering/verse_4.1.0_bioc_3.13:latest
     steps:
-      - name: Checkout repo
+      - name: Checkout multisite action repo
         uses: actions/checkout@v2
 
-      - name: Checkout repo
+      - name: Checkout R package repo
         uses: actions/checkout@v2
         with:
           repository: "Roche/rtables"
@@ -36,6 +36,9 @@ jobs:
 
       - name: Show result
         run: |
+          pwd
+          ls -al 
+          cd rtables
           if [ `git diff | wc -l` != 0 ]
               then
               git diff
