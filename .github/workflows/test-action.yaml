@@ -41,7 +41,7 @@ jobs:
           cd rtables
           if [ `git diff | wc -l` != 0 ]
               then
-              git diff
+              git diff --name-only
               else
                 echo "No changes detected"
                 return -1
