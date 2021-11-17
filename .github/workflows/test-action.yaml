@@ -8,7 +8,8 @@ on:
     branches:
       - main
   pull_request:
-      - main
+    branches:
+        - main
 
 jobs:
   smoke-test:
@@ -19,7 +20,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-    
+
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
@@ -32,7 +33,7 @@ jobs:
         with:
           path: "rtables"
           release_name: "latest"
-
+          
       - name: Show result
         run: |
           if [ `git diff | wc -l` != 0 ]
