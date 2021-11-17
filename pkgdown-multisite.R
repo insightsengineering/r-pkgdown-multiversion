@@ -15,7 +15,6 @@ html_template = function(fname = ""){
   a = c(a, paste0('   <li><a href="', dir_level, releases, '/index.html">', releases, '</a></li>'))
   a = c(a, '</ul></li>')
   a = c(a, '<!-- end_releases -->')
-  print(a)
   return(a)
 }
 

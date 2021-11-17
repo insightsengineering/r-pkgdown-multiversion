@@ -1,6 +1,9 @@
 name: R pkgdown multisite docs
 author: Insights Engineering
-description: Github Action that generates multisite R documentation created with pkgdown. Modification is done on previously generated gh-pages branch
+description: Generates multisite R documentation created with pkgdown. Modification is done on previously generated gh-pages branch
+branding:
+  icon: 'anchor'
+  color: 'orange'
 inputs:
   path:
     description: Path to package's root
@@ -10,13 +13,21 @@ inputs:
     description: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
     required: true
     default: "main"
+
 runs:
   using: 'composite'
   steps:
-    - run: |
+    - name: Install dependencies
+      run: |
+        options(repos = c(CRAN = "https://cloud.r-project.org/"))
+        ncores <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
+        if (!require("httr")) install.packages("httr", upgrade = "never", Ncpus = ncores)
+      shell: Rscript {0}
+
+    - name: Run multisite creation script
+      run: |
         pwd 
         echo -e "github actions path:" 
         ls -alh ${GITHUB_ACTION_PATH}
         Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
-      shell: bash
-
+      shell: sh
