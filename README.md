@@ -1,11 +1,20 @@
 # r-pkgdown-multisite
 
+## Description
+
 Github Action to generate multiple versions of pkgdown docs for R packages.
-Example of usage:
+
+## Action type
+
+Composite
+
+## Quick start
+
+1. Create new action file `.github/workflows/docs-check-with-multisite.yaml` and put example content:
 
 ```yaml
 ---
-name: Docs
+name: Docs with Multisite
 
 on:
   push:
@@ -20,11 +29,22 @@ jobs:
     name: Pkgdown Docs
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/insightsengineering/rstudio_4.1.0_bioc_3.13:latest
+      image: rocker/verse:4.1.0
     steps:
-      - name: Install R package
-        run: R CMD INSTALL ${{ github.event.repository.name }}
-        shell: bash
+     - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Checkout test repo
+        uses: actions/checkout@v2
+        with:
+          repository: "openpharma/stageddeps.elecinfra"
+          path: "stageddeps.elecinfra"
+
+      - name: Run r cmd check
+        run: |
+          R CMD build stageddeps.elecinfra
+          R CMD INSTALL stageddeps.elecinfra_*.tar.gz
+          R CMD check stageddeps.elecinfra_*.tar.gz
 
       - name: Build docs
         run: |
@@ -60,7 +80,7 @@ jobs:
         with:
           ref: gh-pages
 
-upload-release-assets: #upload tags
+  upload-release-assets: #upload tags
     name: Upload documentation assets
     needs: pkgdown
     runs-on: ubuntu-latest
@@ -114,3 +134,21 @@ upload-release-assets: #upload tags
         uses: EndBug/add-and-commit@v7
 
 ```
+
+## Inputs
+
+* `path`:
+
+    _Description_: Path to package's root
+
+    _Required_: false
+
+    default: "."
+
+  `release_name`:
+
+    _Description_: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
+
+    _Required_: true
+
+    _Default_: "main"
