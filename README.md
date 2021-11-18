@@ -1,4 +1,4 @@
-# r-pkgdown-multisite
+# R Pkgdown MultiSite action
 
 ## Description
 
@@ -153,3 +153,7 @@ jobs:
     _Description_: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
     _Required_: true
     _Default_: "main"
+
+## Links
+
+[R pkgdown package](https://pkgdown.r-lib.org/)
