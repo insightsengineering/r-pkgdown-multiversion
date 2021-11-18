@@ -25,7 +25,7 @@ on:
       - main
 
 jobs:
-  pkgdown:
+  pkgdown: # additional job to create pkgdown documentation for R package as a pre requisite to create pkgdown multi-site 
     name: Pkgdown Docs
     runs-on: ubuntu-latest
     container:
@@ -67,12 +67,15 @@ jobs:
           name: pkgdown.zip
           path: pkgdown.zip
 
+      - name: Setup github user
+        uses: fregante/setup-git-user@v1
+        with: 
+         path: ${{ github.event.repository.name }}
+
       - name: Publish docs
         if: github.ref == 'refs/heads/main' # Only after merge or push to main
         run: |
           cd ${{ github.event.repository.name }}
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
           Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'
           
       - name: Change branch multisite docs
@@ -100,6 +103,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: pkgdown.zip
+
+      - name: Setup github user
+        uses: fregante/setup-git-user@v1
+
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
