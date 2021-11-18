@@ -25,6 +25,5 @@ runs:
       shell: Rscript {0}
 
     - name: Run multisite creation script
-      run: |
-        Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
+      run: Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
       shell: sh
