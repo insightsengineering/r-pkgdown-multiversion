@@ -34,11 +34,11 @@ jobs:
      - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Checkout test repo
+      - name: Checkout test repo 
         uses: actions/checkout@v2
         with:
-          repository: "openpharma/stageddeps.elecinfra"
-          path: "stageddeps.elecinfra"
+          repository: "openpharma/stageddeps.elecinfra"  #remove input parameter to use yours 
+          path: "stageddeps.elecinfra" # remove input parameter to use default path 
 
       - name: Run r cmd check
         run: |
@@ -145,17 +145,11 @@ jobs:
 ## Inputs
 
 * `path`:
-
     _Description_: Path to package's root
-
     _Required_: false
+    _Default_: "."
 
-    default: "."
-
-  `release_name`:
-
+* `release_name`:
     _Description_: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
-
     _Required_: true
-
     _Default_: "main"
