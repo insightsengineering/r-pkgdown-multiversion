@@ -21,6 +21,7 @@ html_template = function(fname = ""){
 
 args = commandArgs(trailingOnly=TRUE)
 if(length(args) != 2){
+  cat(paste("arg: ", args, "\n"))
   stop('2 arguments for executing the script are needed, including reponame: 
   (e.g. "teal.modules.clinical") and release_name: (e.g. "latest" or "v1.0.0")
   

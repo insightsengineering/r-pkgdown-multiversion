@@ -8,18 +8,20 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+        - main
 
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    name: test1
+    name: Test multisite change creation
     container:
       image: ghcr.io/insightsengineering/verse_4.1.0_bioc_3.13:latest
     steps:
-      - name: Checkout repo
+      - name: Checkout multisite action repo
         uses: actions/checkout@v2
-    
-      - name: Checkout repo
+
+      - name: Checkout R package repo
         uses: actions/checkout@v2
         with:
           repository: "Roche/rtables"
@@ -31,3 +33,17 @@ jobs:
         with:
           path: "rtables"
           release_name: "latest"
+
+      - name: Show result
+        run: |
+          pwd
+          ls -al 
+          cd rtables
+          if [ `git diff | wc -l` != 0 ]
+              then
+              git diff --name-only
+              else
+                echo "No changes detected"
+                return -1
+          fi
+        shell: sh
