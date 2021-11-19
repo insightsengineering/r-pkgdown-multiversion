@@ -1,4 +1,4 @@
-name: R pkgdown multisite docs
+name: R pkgdown Multi Version docs
 author: Insights Engineering
 description: Generates multisite R documentation created with pkgdown. Modification is done on previously generated gh-pages branch
 branding:
@@ -24,6 +24,6 @@ runs:
         if (!require("httr")) install.packages("httr", upgrade = "never", Ncpus = ncores)
       shell: Rscript {0}
 
-    - name: Run multisite creation script
+    - name: Run multi-version site creation script
       run: Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
       shell: sh
