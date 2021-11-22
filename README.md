@@ -134,6 +134,7 @@ jobs:
         uses: insightsengineering/r-pkgdown-multisite@v1
         env:
           GITHUB_PAT: ${{ secrets.REPO_GITHUB_TOKEN }}
+          MS_ADD_LINKS_AFTER: "Reference"
       
       - name: Setup github user
         uses: fregante/setup-git-user@v1
@@ -146,14 +147,33 @@ jobs:
 ## Inputs
 
 * `path`:
+
     _Description_: Path to package's root
+
     _Required_: false
+
     _Default_: "."
 
 * `release_name`:
+
     _Description_: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
+
     _Required_: true
+
     _Default_: "main"
+
+## Environments variables
+
+Enviromant variables to change how solution work
+
+* `MS_ADD_LINKS_AFTER`:
+
+    _Description_: Add links to documentation after anchor contains the value. `NEWS.md` file content is used by `pkgdown` to create _Changelog_ site and
+    link to otherwise there can be only the _Reference_ menu
+
+    _Required_: false
+
+    _Default_: "Changelog"
 
 ## Links
 
