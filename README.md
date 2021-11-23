@@ -35,8 +35,9 @@ on:
       - main
 
 jobs:
+
   # additional job to create pkgdown documentation for R package 
-  # and unpack pkgdown documentation to tag/release specific folders with the same name
+  # and unpack pkgdown documentation to tag/release specific folders
   # with this same name
   # those 2 are pre-requisites
   pkgdown:
