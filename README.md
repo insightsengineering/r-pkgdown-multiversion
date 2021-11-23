@@ -166,7 +166,7 @@ Environment variables that allow to change how the solution works.
 
     _Description_: Add links to documentation menu next to each item.
     Additional information:
-  * If R package contains file `NEWS.md` than `pkgdown` create two menus _Reference_  and  _Changelog_. This happens most often and that's a reason why value `Changelog` is configured by default.
+  * If an R package contains the `NEWS.md` file, then `pkgdown` creates two menus _Reference_  and  _Changelog_. This happens most often and it is the reason why the `Changelog`  value is configured by default.
   * First menu _Reference_ is created by default.
 
     _Required_: false
