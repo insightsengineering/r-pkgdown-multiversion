@@ -9,7 +9,7 @@ Additional assumptions:
 * Versioning - release naming convention like `v0.0.1`.
 * Tag specific documentation have to be pushed to `gh-pages` subfolder with the `tag` name (step `Unpack release pkgdown to tag dedicated subfolder` in the example below).
 * To publish multi-version documentation on Github Pages
-  * `gh-pages` branch have to be checked out before `multiversion-docs` step
+  * The `gh-pages` branch have to be checked out before the execution of the`multiversion-docs` step.
   * changed files have to be pushed after this step.
 
 ## Action type
