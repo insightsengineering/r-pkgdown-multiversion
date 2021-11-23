@@ -176,5 +176,7 @@ Environment variables that allow to change how the solution works.
 ## Links
 
 [R pkgdown package](https://pkgdown.r-lib.org/)
+
 [Git Basics - Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
+
 [Managing releases in a repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
