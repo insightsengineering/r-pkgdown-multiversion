@@ -164,7 +164,7 @@ jobs:
 
 ## Environments variables
 
-Enviromant variables to change how solution work
+Environment variables that allow to change how the solution works.
 
 * `MS_ADD_LINKS_AFTER`:
 
