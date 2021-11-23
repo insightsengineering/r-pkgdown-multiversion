@@ -168,8 +168,10 @@ Environment variables that allow to change how the solution works.
 
 * `MS_ADD_LINKS_AFTER`:
 
-    _Description_: Add links to documentation after anchor contains the value. `NEWS.md` file content is used by `pkgdown` to create _Changelog_ site and
-    link to otherwise there can be only the _Reference_ menu
+    _Description_: Add links to documentation menu as a next to it.
+    Additional information:
+  * If R package contains file `NEWS.md` than `pkgdown` create two menus _Reference_  and  _Changelog_. This happens most often and that's a reason why value `Changelog` is configured by default.
+  * First menu _Reference_ is created always.
 
     _Required_: false
 
