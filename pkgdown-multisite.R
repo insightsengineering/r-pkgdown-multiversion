@@ -83,7 +83,8 @@ for(f in html_files){
   }
 
   # add new archived_version section after changelog:
-  start_line = grep(pattern = 'index.html">Changelog</a>', x = html_code) + 1
+  add_links_pattern = paste('index.html">', Sys.getenv('MS_ADD_LINKS_AFTER' ,'Changelog'), '</a>', sep="")
+  start_line = grep(pattern = add_links_pattern, x = html_code) + 1
 
   if(length(start_line == 1)){
       html_code = c(html_code[1:start_line], html_template(fname = f), html_code[(start_line+1):length(html_code)])
