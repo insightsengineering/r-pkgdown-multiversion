@@ -12,134 +12,13 @@ Additional assumptions:
   * The `gh-pages` branch have to be checked out before the execution of the`multiversion-docs` step.
   * Changed files have to be pushed after this step.
 
+## Usage
+
+Please refer to [this example](https://github.com/insightsengineering/r.pkg.template/blob/main/.github/workflows/pkgdown.yaml) workflow to view how this action can be used.
+
 ## Action type
 
 Composite
-
-## Quick start
-
-1. Create new action file `.github/workflows/docs-check-with-multisite.yaml` and put example content:
-
-```yaml
----
-name: Pkgdown docs with Multi-version site
-
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*"
-  pull_request:
-    branches:
-      - main
-
-jobs:
-
-  # additional job to create pkgdown documentation for R package 
-  # and unpack pkgdown documentation to tag/release specific folders
-  # with this same name
-  # those 2 are pre-requisites
-  pkgdown:
-    name: Pkgdown Docs
-    runs-on: ubuntu-latest
-    container:
-      image: rocker/verse:4.1.0
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Checkout test repo
-        uses: actions/checkout@v2
-
-      - name: Run r cmd check
-        run: |
-          R CMD build .
-          R CMD INSTALL stageddeps.elecinfra_*.tar.gz
-
-      - name: Build docs
-        run: |
-          options(repos = c(CRAN = "https://cloud.r-project.org/"))
-          if (!require("pkgdown")) install.packages("pkgdown", upgrade = "never")
-          library(pkgdown)
-          getwd()
-          pkgdown::build_site(".", devel = TRUE)
-        shell: Rscript {0}
-
-      - name: Create artifacts
-        run: |
-          pushd ./docs/
-          zip -r9 $OLDPWD/pkgdown.zip *
-          popd
-        shell: bash
-
-      - name: Upload docs for review
-        if: github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@v2
-        with:
-          name: pkgdown.zip
-          path: pkgdown.zip
-
-      - name: Setup github user 👤
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-
-      - name: Publish pkgdown docs
-        # Only after merge or push to main
-        if: github.ref == 'refs/heads/main'
-        run: |
-          Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'
-      
-      - name: Unpack release pkgdown to tag dedicated subfolder
-        # only for release tags 
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          pwd
-          mv pkgdown.zip ../pkgdown.zip
-          git fetch -a
-          git clean -dfx
-          git checkout gh-pages
-          unzip -o ../pkgdown.zip -d ./${GITHUB_REF_NAME}/
-          git add ./${GITHUB_REF_NAME}/
-          git commit --message="release documentation ${GITHUB_REF_NAME}"
-          git push origin gh-pages
-        shell: sh
-
-  # main multi-version related job
-  multiversion-docs:
-    name: Multi-version docs
-    # Only after merge or push to main or started on tags
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v') }} 
-    runs-on: ubuntu-latest
-    container:
-      image: rocker/verse:4.1.0
-    needs: 
-      - pkgdown
-    steps:
-      - name: Checkout GH pages branch
-        uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-
-      - name: Build multi-version doc
-        uses: insightsengineering/r-pkgdown-multisite@v1
-        env:
-          GITHUB_PAT: ${{ secrets.REPO_GITHUB_TOKEN }}
-          MS_ADD_LINKS_AFTER: "Reference"
-
-      - name: Setup github user 👤
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-
-      - name: Push changes, if any
-        uses: EndBug/add-and-commit@v7
-        with:
-          branch: gh-pages
-
-
-```
 
 ## Inputs
 
