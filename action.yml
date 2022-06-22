@@ -42,12 +42,13 @@ runs:
 
     - name: Create symlink for latest-tag
       run: |
-        set +e
         latest_tag=$(ls -1d * \
           | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$" \
           | sort -t "." -k1,1n -k2,2n -k3,3n \
           | tail -1)
-        [[ "${latest_tag}" != "" ]] && ln -sf ${latest_tag} latest-tag
+        [[ "${latest_tag}" != "" ]] \
+          && ln -sf ${latest_tag} latest-tag \
+          || echo "No tags found, not creating symlink for latest tag"
       shell: bash
 
     - name: Create redirect page
