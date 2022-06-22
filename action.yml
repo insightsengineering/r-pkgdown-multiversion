@@ -65,6 +65,7 @@ runs:
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: "Built site for ${{ github.event.repository.name }}@${{ github.sha }}"
-        file_pattern: "*"
+        repository: ${{ inputs.path }}
+        file_pattern: "."
         commit_user_name: github-actions
         commit_user_email: 41898282+github-actions[bot]
