@@ -42,6 +42,7 @@ runs:
 
     - name: Create symlink for latest-tag
       run: |
+        cd ${{ inputs.path }}
         set +o pipefail
         latest_tag=$(ls -1d * \
           | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$" \
@@ -55,12 +56,12 @@ runs:
 
     - name: Create redirect page
       run: |
-        cp "${GITHUB_ACTION_PATH}/redirect.html" \
-          ${{ inputs.path }}/index.html
+        cd ${{ inputs.path }}
+        cp "${GITHUB_ACTION_PATH}/redirect.html" index.html
         perl -p -i -e \
           "s@REDIRECT_PAGE@${{ inputs.default-landing-page }}@g" \
-          ${{ inputs.path }}/index.html
-        touch ${{ inputs.path }}/.nojekyll
+          index.html
+        touch .nojekyll
       shell: bash
 
     - name: Commit and push changes
