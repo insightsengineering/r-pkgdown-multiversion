@@ -61,7 +61,8 @@ update_content <- function(docs_path = ".",
     path = docs_path,
     pattern = ".html$",
     include.dirs = FALSE,
-    recursive = TRUE
+    recursive = TRUE,
+    full.names = TRUE
   )
 
   for (f in html_files) {
