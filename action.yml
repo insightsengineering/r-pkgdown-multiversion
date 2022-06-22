@@ -55,10 +55,12 @@ runs:
 
     - name: Create redirect page
       run: |
-        cp "${GITHUB_ACTION_PATH}/redirect.html" index.html
+        cp "${GITHUB_ACTION_PATH}/redirect.html" \
+          ${{ inputs.path }}/index.html
         perl -p -i -e \
           "s@REDIRECT_PAGE@${{ inputs.default-landing-page }}@g" \
-          index.html
+          ${{ inputs.path }}/index.html
+        touch ${{ inputs.path }}/.nojekyll
       shell: bash
 
     - name: Commit and push changes
