@@ -8,6 +8,7 @@ prepare_dropdown_button <- function(docs_path = ".",
                                       "^main$",
                                       "^devel$",
                                       "^pre-release$",
+                                      "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
                                     )) {
@@ -50,6 +51,7 @@ update_content <- function(docs_path = ".",
                              "^main$",
                              "^devel$",
                              "^pre-release$",
+                             "^latest-tag$",
                              "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                              sep = "|"
                            )) {
