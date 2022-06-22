@@ -21,7 +21,7 @@ prepare_dropdown_button <- function(docs_path = ".",
   # E.g. v0.1.1 should not be before v0.1.10
   versions <- rev(versions[order(nchar(versions), versions)])
   menu_items <- paste0(
-    '<a class="dropdown-item" href="',
+    '<a class="dropdown-item" href="../',
     versions,
     '">',
     versions,
