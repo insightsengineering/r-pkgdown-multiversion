@@ -19,11 +19,12 @@ inputs:
     required: false
   branches-or-tags-to-list:
     description:
-      Which branches or tags should be listed under the 'Versions' dropdown menu
-      on the landing page? This input should be a regular expression.
+      Which branches or tags should be listed under the
+      'Versions' dropdown menu on the landing page?
+      This input should be a regular expression in R.
     required: false
     default: |
-      ^main$|^devel$|^pre-release$|^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$
+      ^main$|^devel$|^pre-release$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$
 
 runs:
   using: 'composite'
