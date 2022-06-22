@@ -32,12 +32,10 @@ jobs:
         uses: ./
         with:
           path: "rtables"
-          release_name: "latest"
+          default-landing-page: "main"
 
       - name: Show result
         run: |
-          pwd
-          ls -al 
           cd rtables
           if [ `git diff | wc -l` != 0 ]
               then
