@@ -1,6 +1,6 @@
 name: R pkgdown Multi Version docs
 author: Insights Engineering
-description: Generates multisite R documentation created with pkgdown. Modification is done on previously generated gh-pages branch
+description: Generates multisite R documentation created with pkgdown.
 branding:
   icon: 'anchor'
   color: 'orange'
@@ -9,21 +9,74 @@ inputs:
     description: Path to package's root
     required: false
     default: "."
-  release_name:
-    description: latest/main, pre-release or new_tag_string (e.g. "v0.8.0") which will be used for R script to change links
-    required: true
-    default: "main"
+  default-landing-page:
+    description: |
+      The default branch or tag on gh-pages that corresponds to the landing page.
+      For instance, if your root index page on gh-pages is built using the 'main'
+      branch, then the root page of the website will correspond to this page.
+      If 'latest-tag' is selected, then the latest version will become the default.
+    default: main
+    required: false
+  branches-or-tags-to-list:
+    description:
+      Which branches or tags should be listed under the
+      'Versions' dropdown menu on the landing page?
+      This input should be a regular expression in R.
+    required: false
+    default: >-
+      ^main$|^devel$|^pre-release$|^latest-tag$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$
 
 runs:
   using: 'composite'
   steps:
-    - name: Install dependencies
+    - name: Create copy of latest tag
       run: |
-        options(repos = c(CRAN = "https://cloud.r-project.org/"))
-        ncores <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
-        if (!require("httr")) install.packages("httr", upgrade = "never", Ncpus = ncores)
-      shell: Rscript {0}
+        cd ${{ inputs.path }}
+        set +o pipefail
+        latest_tag=$(ls -1d * \
+          | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$" \
+          | sort -t "." -k1,1n -k2,2n -k3,3n \
+          | tail -1)
+        set -o pipefail
+        rm -rf latest-tag
+        [[ "${latest_tag}" != "" ]] \
+          && cp -r "${latest_tag}" latest-tag \
+          || echo "No tags found, not creating symlink for latest tag"
+      shell: bash
+
+    - name: Create redirect page
+      run: |
+        cd ${{ inputs.path }}
+        cp "${GITHUB_ACTION_PATH}/redirect.html" index.html
+        perl -p -i -e \
+          "s@DEFAULT_LANDING_PAGE@${{ inputs.default-landing-page }}@g" \
+          index.html
+        perl -p -i -e \
+          "s@REPOSITORY@${{ github.event.repository.name }}@g" \
+          index.html
+        perl -p -i -e \
+          "s@OWNER@${{ github.repository_owner }}@g" \
+          index.html
+        touch .nojekyll
+      shell: bash
 
     - name: Run multi-version site creation script
-      run: Rscript ${GITHUB_ACTION_PATH}/pkgdown-multisite.R ${{ inputs.path }} ${{ inputs.release_name }}
-      shell: sh
+      run: |
+        source(file.path(
+          Sys.getenv("GITHUB_ACTION_PATH"), "core.R")
+        )
+        setwd("${{ inputs.path }}")
+        update_content(
+          refs_to_list = "${{ inputs.branches-or-tags-to-list }}"
+        )
+      shell: Rscript {0}
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "[actions skip] Built site for ${{ github.event.repository.name }}@${{ github.sha }}"
+        repository: ${{ inputs.path }}
+        commit_user_name: github-actions
+        commit_user_email: 41898282+github-actions[bot]
+        branch: gh-pages
+        create_branch: true
