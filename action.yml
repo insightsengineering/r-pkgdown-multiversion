@@ -29,17 +29,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Run multi-version site creation script
-      run: |
-        source(file.path(
-          Sys.getenv("GITHUB_ACTION_PATH"), "core.R")
-        )
-        update_content(
-          docs_path = "${{ inputs.path }}",
-          refs_to_list = "${{ inputs.branches-or-tags-to-list }}"
-        )
-      shell: Rscript {0}
-
     - name: Create symlink for latest-tag
       run: |
         cd ${{ inputs.path }}
@@ -69,6 +58,17 @@ runs:
           index.html
         touch .nojekyll
       shell: bash
+
+    - name: Run multi-version site creation script
+      run: |
+        source(file.path(
+          Sys.getenv("GITHUB_ACTION_PATH"), "core.R")
+        )
+        update_content(
+          docs_path = "${{ inputs.path }}",
+          refs_to_list = "${{ inputs.branches-or-tags-to-list }}"
+        )
+      shell: Rscript {0}
 
     - name: Commit and push changes
       uses: stefanzweifel/git-auto-commit-action@v4
