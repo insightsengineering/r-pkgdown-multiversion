@@ -29,7 +29,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create symlink for latest-tag
+    - name: Create copy of latest tag
       run: |
         cd ${{ inputs.path }}
         set +o pipefail
@@ -38,6 +38,7 @@ runs:
           | sort -t "." -k1,1n -k2,2n -k3,3n \
           | tail -1)
         set -o pipefail
+        rm -rf latest-tag
         [[ "${latest_tag}" != "" ]] \
           && cp -r "${latest_tag}" latest-tag \
           || echo "No tags found, not creating symlink for latest tag"
