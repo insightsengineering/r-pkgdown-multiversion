@@ -50,7 +50,7 @@ runs:
           | tail -1)
         set -o pipefail
         [[ "${latest_tag}" != "" ]] \
-          && ln -sf ${latest_tag} latest-tag \
+          && cp -r "${latest_tag}" latest-tag \
           || echo "No tags found, not creating symlink for latest tag"
       shell: bash
 
