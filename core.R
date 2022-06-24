@@ -52,7 +52,6 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     menu_items,
     paste("</div></li>", end_tag, sep = "\n")
   )
-  message(paste("Button:", button))
   return(button)
 }
 
