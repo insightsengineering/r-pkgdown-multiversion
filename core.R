@@ -38,7 +38,7 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     collapse = "\n"
   )
   # Generate element
-  return(paste(
+  button <- paste(
     paste(
       start_tag,
       '<li class="nav-item dropdown">
@@ -51,7 +51,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     '<div class="dropdown-menu" aria-labelledby="dropdown-versions">',
     menu_items,
     paste("</div></li>", end_tag, sep = "\n")
-  ))
+  )
+  message(paste("Button:", button))
+  return(button)
 }
 
 update_content <- function(refs_to_list = paste(
@@ -86,7 +88,7 @@ update_content <- function(refs_to_list = paste(
       html_content <- html_content[- (start_release_line:end_release_line)]
     }
     start_line <- grep(pattern = add_links_pattern, x = html_content) + 1
-    if (length(start_line == 1)) {
+    if (length(start_line > 0)) {
       html_content <- c(
         html_content[1:start_line],
         dropdown_button,
