@@ -4,8 +4,7 @@ start_tag <- "<!-- start dropdown for versions -->"
 end_tag <- "<!-- end dropdown for versions -->"
 add_links_pattern <- '<ul class="navbar-nav me-auto">'
 
-prepare_dropdown_button <- function(docs_path = ".",
-                                    refs_to_list = paste(
+prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^main$",
                                       "^devel$",
                                       "^pre-release$",
@@ -15,7 +14,7 @@ prepare_dropdown_button <- function(docs_path = ".",
                                     )) {
   # List and sort versions
   versions <- sort(list.dirs(
-    path = docs_path,
+    path = ".",
     recursive = FALSE,
     full.names = FALSE
   ), decreasing = TRUE)
@@ -55,8 +54,7 @@ prepare_dropdown_button <- function(docs_path = ".",
   ))
 }
 
-update_content <- function(docs_path = ".",
-                           refs_to_list = paste(
+update_content <- function(refs_to_list = paste(
                              "^main$",
                              "^devel$",
                              "^pre-release$",
@@ -64,12 +62,10 @@ update_content <- function(docs_path = ".",
                              "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                              sep = "|"
                            )) {
-  dropdown_button <- prepare_dropdown_button(
-    docs_path, refs_to_list
-  )
+  dropdown_button <- prepare_dropdown_button(refs_to_list)
 
-  html_files <- dir(
-    path = docs_path,
+  html_files <- list.files(
+    path = ".",
     pattern = ".html$",
     include.dirs = FALSE,
     recursive = TRUE,
