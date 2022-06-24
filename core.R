@@ -2,6 +2,7 @@
 
 start_tag <- "<!-- start dropdown for versions -->"
 end_tag <- "<!-- end dropdown for versions -->"
+add_links_pattern <- '<ul class="navbar-nav me-auto">'
 
 prepare_dropdown_button <- function(docs_path = ".",
                                     refs_to_list = paste(
@@ -88,7 +89,6 @@ update_content <- function(docs_path = ".",
     if (length(start_release_line) > 0 && length(end_release_line) > 0) {
       html_content <- html_content[- (start_release_line:end_release_line)]
     }
-    add_links_pattern <- '<ul class="navbar-nav me-auto">'
     start_line <- grep(pattern = add_links_pattern, x = html_content) + 1
     if (length(start_line == 1)) {
       html_content <- c(
