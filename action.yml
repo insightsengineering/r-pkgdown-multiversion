@@ -59,7 +59,13 @@ runs:
         cd ${{ inputs.path }}
         cp "${GITHUB_ACTION_PATH}/redirect.html" index.html
         perl -p -i -e \
-          "s@REDIRECT_PAGE@${{ inputs.default-landing-page }}@g" \
+          "s@DEFAULT_LANDING_PAGE@${{ inputs.default-landing-page }}@g" \
+          index.html
+        perl -p -i -e \
+          "s@REPOSITORY@${{ github.event.repository.name }}@g" \
+          index.html
+        perl -p -i -e \
+          "s@OWNER@${{ github.repository_owner }}@g" \
           index.html
         touch .nojekyll
       shell: bash
