@@ -86,7 +86,7 @@ update_content <- function(refs_to_list = paste(
     if (length(start_release_line) > 0 && length(end_release_line) > 0) {
       html_content <- html_content[- (start_release_line:end_release_line)]
     }
-    start_line <- grep(pattern = add_links_pattern, x = html_content) + 1
+    start_line <- grep(pattern = add_links_pattern, x = html_content)
     if (length(start_line > 0)) {
       html_content <- c(
         html_content[1:start_line],
