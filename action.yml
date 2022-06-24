@@ -23,7 +23,7 @@ inputs:
       'Versions' dropdown menu on the landing page?
       This input should be a regular expression in R.
     required: false
-    default: |
+    default: >-
       ^main$|^devel$|^pre-release$|^latest-tag$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$
 
 runs:
