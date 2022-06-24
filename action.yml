@@ -25,6 +25,13 @@ inputs:
     required: false
     default: >-
       ^main$|^devel$|^pre-release$|^latest-tag$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$
+  insert-after-section:
+    description:
+      After which section in the navbar should the 'Versions'
+      dropdown be added? Choose between 'Reference' and 'Changelog'
+      for the surest of choices.
+    required: false
+    default: Changelog
 
 runs:
   using: 'composite'
@@ -67,7 +74,8 @@ runs:
         )
         setwd("${{ inputs.path }}")
         update_content(
-          refs_to_list = "${{ inputs.branches-or-tags-to-list }}"
+          refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
+          insert_after_section = "${{ inputs.insert-after-section }}"
         )
       shell: Rscript {0}
 

@@ -2,7 +2,6 @@
 
 start_tag <- "<!-- start dropdown for versions -->"
 end_tag <- "<!-- end dropdown for versions -->"
-add_links_pattern <- '<ul class="navbar-nav me-auto">'
 
 prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^main$",
@@ -62,7 +61,8 @@ update_content <- function(refs_to_list = paste(
                              "^latest-tag$",
                              "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                              sep = "|"
-                           )) {
+                           ),
+                           insert_after_section = "Changelog") {
   dropdown_button <- prepare_dropdown_button(refs_to_list)
 
   html_files <- list.files(
@@ -73,25 +73,26 @@ update_content <- function(refs_to_list = paste(
     full.names = TRUE
   )
 
+  insert_after <- paste0('index.html">', insert_after_section, "</a>")
+
   for (f in html_files) {
     html_content <- readLines(f)
     # Replace previous instances
-    start_release_line <- grep(
-      pattern = start_tag,
-      x = html_content
+    drowdown_start_line <- grep(
+      pattern = start_tag, x = html_content
     )
-    end_release_line <- grep(
+    dropdown_end_line <- grep(
       pattern = end_tag, x = html_content
     )
-    if (length(start_release_line) > 0 && length(end_release_line) > 0) {
-      html_content <- html_content[- (start_release_line:end_release_line)]
+    if (length(drowdown_start_line) > 0 && length(dropdown_end_line) > 0) {
+      html_content <- html_content[- (drowdown_start_line:dropdown_end_line)]
     }
-    start_line <- grep(pattern = add_links_pattern, x = html_content)
-    if (length(start_line > 0)) {
+    insert_line <- grep(pattern = insert_after, x = html_content) + 1
+    if (length(insert_line > 0)) {
       html_content <- c(
-        html_content[1:start_line],
+        html_content[1:insert_line],
         dropdown_button,
-        html_content[(start_line + 1):length(html_content)]
+        html_content[(insert_line + 1):length(html_content)]
       )
       writeLines(html_content, f)
     } else {
@@ -99,7 +100,7 @@ update_content <- function(refs_to_list = paste(
         paste(
           f,
           ": Could not find the",
-          add_links_pattern,
+          insert_after,
           "tag"
         )
       )

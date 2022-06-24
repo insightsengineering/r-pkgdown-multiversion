@@ -37,6 +37,14 @@ Composite
 
     _Default_: `^main$|^devel$|^pre-release$|^latest-tag$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$`
 
+* `insert-after-section`:
+
+  _Description_: After which section in the navbar should the 'Versions' dropdown be added? Choose between 'Reference' and 'Changelog' for the surest of choices.
+
+  _Required_: `false`
+
+  _Default_: `Changelog`
+
 ## Outputs
 
 None.
