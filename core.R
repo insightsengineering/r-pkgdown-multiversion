@@ -11,6 +11,8 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
                                     ), versions_dropdownlist_configuration="") {
+  
+  if (!require("yaml")) install.packages("yaml")
   config <- yaml::yaml.load(versions_dropdownlist_configuration)
   
   # List and sort versions
