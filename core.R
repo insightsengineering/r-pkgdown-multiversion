@@ -10,9 +10,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
-                                    ), versions_dropdownlist_configuration="") {
+                                    ), versions_dropdownlist_config="") {
 
-  conf <- eval(parse(text=versions_dropdownlist_configuration))
+  conf <- eval(parse(text=versions_dropdownlist_config))
 
   # List and sort versions
   versions <- sort(list.dirs(
@@ -24,14 +24,14 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   # E.g. v0.1.1 should not be before v0.1.10
   versions <- rev(versions[order(nchar(versions), versions)])
 
-  text <- sapply(versions, FUN = function(x) { 
-    text  <-conf$config$text[[x]] 
-    if(is.null(text) ) x else text
+  text <- sapply(versions, FUN = function(x){
+    text <- conf$config$text[[x]]
+    if(is.null(text)) x else text
   }, simplify = TRUE)
 
-  tooltip <- sapply(versions, FUN = function(x) { 
-    text  <-conf$config$tooltip[[x]] 
-    if(is.null(text) ) "" else text
+  tooltip <- sapply(versions, FUN = function(x){
+    text <- conf$config$tooltip[[x]] 
+    if(is.null(text)) "" else text
   }, simplify = TRUE)
 
   menu_items <- paste0(
