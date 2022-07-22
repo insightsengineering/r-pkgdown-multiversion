@@ -33,21 +33,23 @@ inputs:
     required: false
     default: Changelog
   versions-dropdownlist-configuration:
-    description:
-      YAML configuration how should the dropdownlist appear.
-      String should be quoted in ' sign
-    required: false
-    default: |
+    description: |
+      Configuration how should the dropdownlist appear for multiple versions.
+      It should be set as an ASCII text representation of an R list object 
+      Example:
+      """
       list(config = list(
-        tooltip = list(
-          devel = "Unreleased development version of Package", 
-          main = "CRAN Released Package v0.7.0"
-        ), 
-        text = list(
-          devel = "devel - unreleased", 
-          main = "main - CRAN"
-        )
-      ))
+              tooltip = list(
+                main = "Tooltip for main branch"
+              ), 
+              text = list( 
+                main = "main branch"
+              )
+            ))
+      """
+      String should be quoted in " sign
+    required: false
+    default: ""
 
 
 
