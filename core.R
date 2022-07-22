@@ -13,7 +13,7 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                     ), versions_dropdownlist_configuration="") {
   
   if (!require("yaml")) install.packages("yaml")
-  config <- yaml::yaml.load(versions_dropdownlist_configuration)
+  conf <- yaml::yaml.load(versions_dropdownlist_configuration)
   
   # List and sort versions
   versions <- sort(list.dirs(
