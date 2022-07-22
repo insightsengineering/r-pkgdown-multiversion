@@ -37,13 +37,16 @@ inputs:
       YAML configuration how should the dropdownlist appear
     required: false
     default: |
-      config:
-        tooltip:
-          devel: Unreleased development version of Package 
-          main: CRAN Released Package v0.7.0
-        text:
-          devel: devel - unreleased
-          main: main - CRAN Released Package
+      list(config = list(
+        tooltip = list(
+          devel = "Unreleased development version of Package", 
+          main = "CRAN Released Package v0.7.0"
+        ), 
+        text = list(
+          devel = "devel - unreleased", 
+          main = "main - CRAN"
+        )
+      ))
 
 
 
@@ -79,12 +82,6 @@ runs:
           "s@OWNER@${{ github.repository_owner }}@g" \
           index.html
         touch .nojekyll
-      shell: bash
-
-    - name: Set R Library home on Linux
-      run: |
-        mkdir -p /__w/_temp/Library
-        echo ".libPaths(c('/__w/_temp/Library', .libPaths()))" > ~/.Rprofile
       shell: bash
       
     - name: Run multi-version site creation script
