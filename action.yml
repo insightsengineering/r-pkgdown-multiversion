@@ -32,6 +32,19 @@ inputs:
       for the surest of choices.
     required: false
     default: Changelog
+  versions-dropdownlist-configuration:
+    description:
+      YAML configuration how should the dropdownlist appear
+    required: false
+    default: >
+      config:
+        tooltip:
+          devel: Unreleased development version of Package 
+          main: CRAN Released Package v0.7.0
+        text:
+          devel: devel - unreleased
+          main: main - CRAN Released Package
+
 
 runs:
   using: 'composite'
@@ -75,7 +88,8 @@ runs:
         setwd("${{ inputs.path }}")
         update_content(
           refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
-          insert_after_section = "${{ inputs.insert-after-section }}"
+          insert_after_section = "${{ inputs.insert-after-section }}",
+          versions_dropdownlist_configuration = ${{ inputs.versions-dropdownlist-configuration }}""
         )
       shell: Rscript {0}
 
