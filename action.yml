@@ -32,7 +32,7 @@ inputs:
       for the surest of choices.
     required: false
     default: Changelog
-  versions-dropdownlist-config:
+  version-tab:
     description: |
       Configuration how should the dropdownlist appear for multiple versions.
       It should be set as an ASCII text representation of an R list object 
@@ -47,7 +47,7 @@ inputs:
               )
             ))
       """
-      String should be quoted in " sign
+      String should be quoted with " sign
     required: false
     default: ""
 
@@ -96,7 +96,7 @@ runs:
         update_content(
           refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
           insert_after_section = "${{ inputs.insert-after-section }}",
-          versions_dropdownlist_config = '${{ inputs.versions-dropdownlist-config }}'
+          version_tab = '${{ inputs.version-tab}}'
         )
       shell: Rscript {0}
 

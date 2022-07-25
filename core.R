@@ -10,9 +10,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
-                                    ), versions_dropdownlist_config="") {
+                                    ), version_tab="") {
 
-  conf <- eval(parse(text=versions_dropdownlist_config))
+  conf <- eval(parse(text=version_tab))
 
   # List and sort versions
   versions <- sort(list.dirs(
@@ -79,8 +79,8 @@ update_content <- function(refs_to_list = paste(
                              sep = "|"
                            ),
                            insert_after_section = "Changelog",
-                           versions_dropdownlist_configuration = "") {
-  dropdown_button <- prepare_dropdown_button(refs_to_list, versions_dropdownlist_configuration)
+                           version_tab = "") {
+  dropdown_button <- prepare_dropdown_button(refs_to_list, version_tab)
 
   html_files <- list.files(
     path = ".",
