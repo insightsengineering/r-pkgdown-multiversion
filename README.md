@@ -60,6 +60,7 @@ Composite
                 )
                 ))
     ```
+    String should be quoted with " sign
 
   _Required_: `false`
 
