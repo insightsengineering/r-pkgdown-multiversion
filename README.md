@@ -49,7 +49,7 @@ Composite
 
 * `version-tab`:
 
-  _Description_: Configuration how should the dropdownlist appear for multiple versions.It should be set as an ASCII text representation of an R list object. Example:
+  _Description_: Configuration of how the drop-down list should appear for multiple versions. It should be set as an ASCII text representation of an R list object. Example:
     ```
         list(config = list(
                 tooltip = list(
