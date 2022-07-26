@@ -47,6 +47,27 @@ Composite
 
   _Default_: `Changelog`
 
+* `version-tab`:
+
+  _Description_: Configuration of how the drop-down list should appear for multiple versions. It should be set as an ASCII text representation of an R list object. Example:
+    ```
+        list(config = list(
+                tooltip = list(
+                    main = "Tooltip for main branch"
+                ), 
+                text = list( 
+                    main = "main branch"
+                )
+                ))
+    ```
+    String should be quoted with " sign
+
+  _Required_: `false`
+
+  _Default_: ``
+  
+
+
 ## Outputs
 
 None.

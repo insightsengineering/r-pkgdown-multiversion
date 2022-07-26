@@ -10,7 +10,10 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
-                                    )) {
+                                    ), version_tab="") {
+
+  conf <- eval(parse(text=version_tab))
+
   # List and sort versions
   versions <- sort(list.dirs(
     path = ".",
@@ -20,8 +23,21 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   versions <- versions[grep(refs_to_list, versions)]
   # E.g. v0.1.1 should not be before v0.1.10
   versions <- rev(versions[order(nchar(versions), versions)])
+
+  text <- sapply(versions, FUN = function(x){
+    text <- conf$config$text[[x]]
+    if(is.null(text)) x else text
+  }, simplify = TRUE)
+
+  tooltip <- sapply(versions, FUN = function(x){
+    text <- conf$config$tooltip[[x]] 
+    if(is.null(text)) "" else text
+  }, simplify = TRUE)
+
   menu_items <- paste0(
-    '<a class="dropdown-item" href="https://',
+    '<a class="dropdown-item" data-toggle="tooltip" title="',
+    tooltip,
+    '" href="https://',
     Sys.getenv("GITHUB_REPOSITORY_OWNER"),
     ".github.io/",
     gsub(
@@ -32,7 +48,7 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     "/",
     versions,
     '">',
-    versions,
+    text,
     "</a>",
     collapse = "\n"
   )
@@ -62,8 +78,9 @@ update_content <- function(refs_to_list = paste(
                              "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                              sep = "|"
                            ),
-                           insert_after_section = "Changelog") {
-  dropdown_button <- prepare_dropdown_button(refs_to_list)
+                           insert_after_section = "Changelog",
+                           version_tab = "") {
+  dropdown_button <- prepare_dropdown_button(refs_to_list, version_tab)
 
   html_files <- list.files(
     path = ".",
