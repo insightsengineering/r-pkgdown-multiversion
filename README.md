@@ -37,7 +37,7 @@ Composite
 
     _Required_: `false`
 
-    _Default_: `^main$|^devel$|^pre-release$|^latest-tag$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$`
+    _Default_: `^main$|^devel$|^pre-release$|^latest-tag$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$`
 
 * `insert-after-section`:
 
