@@ -9,6 +9,10 @@ This Github Actions works under the following assumptions:
 * The version of `pkgdown` used to generate the documentation is `>= v2.0.0`
 * The `pkgdown` documentation uses Bootstrap 5
 
+An example of the output of the action can be seen below:
+
+![Screenshot with example output](example.png)
+
 ## Action type
 
 Composite
@@ -54,8 +58,8 @@ Composite
         list(config = list(
                 tooltip = list(
                     main = "Tooltip for main branch"
-                ), 
-                text = list( 
+                ),
+                text = list(
                     main = "main branch"
                 )
                 ))
@@ -65,7 +69,7 @@ Composite
   _Required_: `false`
 
   _Default_: ``
-  
+
 
 
 ## Outputs
