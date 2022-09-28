@@ -20,9 +20,12 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     recursive = FALSE,
     full.names = FALSE
   ), decreasing = TRUE)
+  print(paste0("versions = ", versions))
   versions <- versions[grep(refs_to_list, versions)]
+  print(paste0("versions = ", versions))
   # E.g. v0.1.1 should not be before v0.1.10
   versions <- rev(versions[order(nchar(versions), versions)])
+  print(paste0("versions = ", versions))
 
   text <- sapply(versions, FUN = function(x){
     text <- conf$config$text[[x]]
@@ -30,7 +33,7 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   }, simplify = TRUE)
 
   tooltip <- sapply(versions, FUN = function(x){
-    text <- conf$config$tooltip[[x]] 
+    text <- conf$config$tooltip[[x]]
     if(is.null(text)) "" else text
   }, simplify = TRUE)
 
