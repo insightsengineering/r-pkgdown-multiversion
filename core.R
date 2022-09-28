@@ -24,7 +24,8 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   versions <- versions[grep(refs_to_list, versions)]
   print(paste0("versions = ", versions))
   # E.g. v0.1.1 should not be before v0.1.10
-  versions <- rev(versions[order(nchar(versions), versions)])
+  # versions <- rev(versions[order(nchar(versions), versions)])
+  versions <- rev(versions[order(versions)])
   print(paste0("versions = ", versions))
 
   text <- sapply(versions, FUN = function(x){
