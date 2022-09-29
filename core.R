@@ -32,27 +32,29 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   versions <- versions[grep(refs_to_list, versions)]
   output <- c()
 
-  # Append non-semantic versions to output vector according to
-  # order in refs_order
+  # Append versions to output vector according to
+  # the order in refs_order
   for (ref in refs_order) {
     result <- versions[grep(ref, versions)]
     if (!identical(result, character(0))) {
       output <- c(output, result)
     }
   }
-  semantic_versions <- versions[grepl(
-    "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
+
+  other_versions <- versions[!grepl(
+    paste0(refs_order, collapse = "|"),
     versions
   )]
 
-  # Append semantic versions at the bottom of drop-down list
+  # Append versions other than ones in refs_order
+  # at the bottom of drop-down list.
   # Sorting is done according to the number of characters:
   # E.g. v0.1.1 should not be before v0.1.10
   versions <- c(
     output,
-    rev(semantic_versions[
-      order(nchar(semantic_versions),
-      semantic_versions)
+    rev(other_versions[
+      order(nchar(other_versions),
+      other_versions)
     ])
   )
   print(paste0("Version order in drop-down: ", versions))
