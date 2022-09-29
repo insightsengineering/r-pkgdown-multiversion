@@ -103,7 +103,7 @@ runs:
         setwd("${{ inputs.path }}")
         update_content(
           refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
-          refs_order = ${{ inputs.refs-order }}
+          refs_order = ${{ inputs.refs-order }},
           insert_after_section = "${{ inputs.insert-after-section }}",
           version_tab = '${{ inputs.version-tab }}'
         )
