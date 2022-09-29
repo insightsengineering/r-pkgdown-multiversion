@@ -12,9 +12,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       sep = "|"
                                     ),
                                     refs_order = c(
-                                      "main",
                                       "devel",
                                       "pre-release",
+                                      "main",
                                       "latest-tag"
                                     ),
                                     version_tab = "") {
@@ -113,9 +113,9 @@ update_content <- function(refs_to_list = paste(
                            ),
                            insert_after_section = "Changelog",
                            refs_order = c(
-                            "main",
                             "devel",
                             "pre-release",
+                            "main",
                             "latest-tag"
                           ),
                            version_tab = "") {
