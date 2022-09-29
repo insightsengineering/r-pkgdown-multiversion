@@ -57,7 +57,7 @@ inputs:
       Example:
       c("main", "devel", "pre-release", "latest-tag")
     required: false
-    default: ""
+    default: c("main", "devel", "pre-release", "latest-tag")
 
 
 
