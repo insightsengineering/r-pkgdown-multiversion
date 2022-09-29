@@ -70,6 +70,23 @@ Composite
 
   _Default_: ``
 
+* `refs-order`:
+
+  _Description_: The order in which refs (other than semantic versions) should
+    appear in the drop-down list. Semantic versions will appear
+    below refs listed here.
+
+    If docs have never been generated for the ref, the ref will not appear in the
+    drop-down. Similarly, if docs have been generated for the ref, but the ref is not
+    listed in the vector, it will not appear in the drop-down.
+
+    Example:
+    c("main", "devel", "pre-release", "latest-tag")
+
+  _Required_: `false`
+
+  _Default_: `c("main", "devel", "pre-release", "latest-tag")`
+
 
 
 ## Outputs
