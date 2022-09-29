@@ -52,8 +52,9 @@ inputs:
     default: ""
   refs-order:
     description: |
-      The order refs (other than semantic versions) should
-      appear in the drop-down list.
+      The order in which refs (other than semantic versions) should
+      appear in the drop-down list. Semantic versions will appear
+      below refs listed here.
       Example:
       c("main", "devel", "pre-release", "latest-tag")
     required: false
