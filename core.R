@@ -10,7 +10,10 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
-                                    ), version_tab="") {
+                                    ),
+                                    refs_order = c(
+                                      "devel"), # TODO fix
+                                    version_tab="") {
 
   conf <- eval(parse(text=version_tab))
 
@@ -20,13 +23,37 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     recursive = FALSE,
     full.names = FALSE
   ), decreasing = TRUE)
-  print(paste0("versions = ", versions))
+
+  print("refs_order")
+  print(refs_order)
   versions <- versions[grep(refs_to_list, versions)]
-  print(paste0("versions = ", versions))
+  output <- c()
+  for (ref in refs_order) {
+    result <- versions[grep(ref, versions)]
+    if (!identical(result, character(0))) {
+      output <- c(output, result)
+    }
+  }
+  print("output")
+  print(output)
+  semantic_versions <- versions[grepl(
+    "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
+    versions
+  )]
+  print("semantic_versions")
+  print(semantic_versions)
+  # Sorting according to the number of characters:
   # E.g. v0.1.1 should not be before v0.1.10
-  # versions <- rev(versions[order(nchar(versions), versions)])
-  versions <- rev(versions[order(versions)])
-  print(paste0("versions = ", versions))
+  versions <- c(
+    output,
+    rev(semantic_versions[
+      order(nchar(semantic_versions),
+      semantic_versions)
+    ])
+  )
+
+print("versions")
+print(versions)
 
   text <- sapply(versions, FUN = function(x){
     text <- conf$config$text[[x]]
