@@ -46,6 +46,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     versions
   )]
 
+  # TODO remove
+  print(paste0("other_versions = ", other_versions))
+
   # Append versions other than ones in refs_order
   # at the bottom of drop-down list.
   # Sorting is done according to the number of characters:
