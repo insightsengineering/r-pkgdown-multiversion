@@ -110,8 +110,10 @@ update_content <- function(refs_to_list = paste(
                              sep = "|"
                            ),
                            insert_after_section = "Changelog",
+                           refs_order = c(
+                            "devel"), # TODO fix
                            version_tab = "") {
-  dropdown_button <- prepare_dropdown_button(refs_to_list, version_tab)
+  dropdown_button <- prepare_dropdown_button(refs_to_list, refs_order, version_tab)
 
   html_files <- list.files(
     path = ".",
