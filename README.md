@@ -81,7 +81,7 @@ Composite
     listed in the vector, it will not appear in the drop-down.
 
     Example:
-    c("main", "devel", "pre-release", "latest-tag")
+    `c("main", "devel", "pre-release", "latest-tag")`
 
   _Required_: `false`
 
