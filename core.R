@@ -17,9 +17,9 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "pre-release",
                                       "latest-tag"
                                     ),
-                                    version_tab="") {
+                                    version_tab = "") {
 
-  conf <- eval(parse(text=version_tab))
+  conf <- eval(parse(text = version_tab))
 
   # List and sort versions
   versions <- sort(list.dirs(
@@ -57,14 +57,14 @@ prepare_dropdown_button <- function(refs_to_list = paste(
   )
   print(paste0("Version order in drop-down: ", versions))
 
-  text <- sapply(versions, FUN = function(x){
+  text <- sapply(versions, FUN = function(x) {
     text <- conf$config$text[[x]]
-    if(is.null(text)) x else text
+    if (is.null(text)) x else text
   }, simplify = TRUE)
 
-  tooltip <- sapply(versions, FUN = function(x){
+  tooltip <- sapply(versions, FUN = function(x) {
     text <- conf$config$tooltip[[x]]
-    if(is.null(text)) "" else text
+    if (is.null(text)) "" else text
   }, simplify = TRUE)
 
   menu_items <- paste0(
@@ -119,7 +119,9 @@ update_content <- function(refs_to_list = paste(
                             "latest-tag"
                           ),
                            version_tab = "") {
-  dropdown_button <- prepare_dropdown_button(refs_to_list, refs_order, version_tab)
+  dropdown_button <- prepare_dropdown_button(
+    refs_to_list, refs_order, version_tab
+  )
 
   html_files <- list.files(
     path = ".",
