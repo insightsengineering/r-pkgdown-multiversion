@@ -10,9 +10,16 @@ prepare_dropdown_button <- function(refs_to_list = paste(
                                       "^latest-tag$",
                                       "^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$",
                                       sep = "|"
-                                    ), version_tab="") {
+                                    ),
+                                    refs_order = c(
+                                      "devel",
+                                      "pre-release",
+                                      "main",
+                                      "latest-tag"
+                                    ),
+                                    version_tab = "") {
 
-  conf <- eval(parse(text=version_tab))
+  conf <- eval(parse(text = version_tab))
 
   # List and sort versions
   versions <- sort(list.dirs(
@@ -20,18 +27,46 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     recursive = FALSE,
     full.names = FALSE
   ), decreasing = TRUE)
-  versions <- versions[grep(refs_to_list, versions)]
-  # E.g. v0.1.1 should not be before v0.1.10
-  versions <- rev(versions[order(nchar(versions), versions)])
 
-  text <- sapply(versions, FUN = function(x){
+  # Filter versions according to refs_to_list
+  versions <- versions[grep(refs_to_list, versions)]
+  output <- c()
+
+  # Append versions to output vector according to
+  # the order in refs_order
+  for (ref in refs_order) {
+    result <- versions[grep(ref, versions)]
+    if (!identical(result, character(0))) {
+      output <- c(output, result)
+    }
+  }
+
+  other_versions <- versions[!grepl(
+    paste0(refs_order, collapse = "|"),
+    versions
+  )]
+
+  # Append versions other than ones in refs_order
+  # at the bottom of drop-down list.
+  # Sorting is done according to the number of characters:
+  # E.g. v0.1.1 should not be before v0.1.10
+  versions <- c(
+    output,
+    rev(other_versions[
+      order(nchar(other_versions),
+      other_versions)
+    ])
+  )
+  print(paste0("Version order in drop-down: ", versions))
+
+  text <- sapply(versions, FUN = function(x) {
     text <- conf$config$text[[x]]
-    if(is.null(text)) x else text
+    if (is.null(text)) x else text
   }, simplify = TRUE)
 
-  tooltip <- sapply(versions, FUN = function(x){
-    text <- conf$config$tooltip[[x]] 
-    if(is.null(text)) "" else text
+  tooltip <- sapply(versions, FUN = function(x) {
+    text <- conf$config$tooltip[[x]]
+    if (is.null(text)) "" else text
   }, simplify = TRUE)
 
   menu_items <- paste0(
@@ -79,8 +114,16 @@ update_content <- function(refs_to_list = paste(
                              sep = "|"
                            ),
                            insert_after_section = "Changelog",
+                           refs_order = c(
+                            "devel",
+                            "pre-release",
+                            "main",
+                            "latest-tag"
+                          ),
                            version_tab = "") {
-  dropdown_button <- prepare_dropdown_button(refs_to_list, version_tab)
+  dropdown_button <- prepare_dropdown_button(
+    refs_to_list, refs_order, version_tab
+  )
 
   html_files <- list.files(
     path = ".",

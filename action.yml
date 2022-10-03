@@ -35,14 +35,14 @@ inputs:
   version-tab:
     description: |
       Configuration how should the dropdownlist appear for multiple versions.
-      It should be set as an ASCII text representation of an R list object 
+      It should be set as an ASCII text representation of an R list object
       Example:
       """
       list(config = list(
               tooltip = list(
                 main = "Tooltip for main branch"
-              ), 
-              text = list( 
+              ),
+              text = list(
                 main = "main branch"
               )
             ))
@@ -50,6 +50,17 @@ inputs:
       String should be quoted with " sign
     required: false
     default: ""
+  refs-order:
+    description: |
+      The order in which refs should appear in the drop-down list. Versions not in the vector
+      will appear below refs listed here.
+      If docs have never been generated for the ref, the ref will not appear in the
+      drop-down. Similarly, if docs have been generated for the ref, but the ref is not
+      listed in the vector, it will not appear in the drop-down.
+      Example:
+      c("main", "devel", "pre-release", "latest-tag")
+    required: false
+    default: c("main", "devel", "pre-release", "latest-tag")
 
 
 
@@ -86,7 +97,7 @@ runs:
           index.html
         touch .nojekyll
       shell: bash
-      
+
     - name: Run multi-version site creation script
       run: |
         source(file.path(
@@ -95,8 +106,9 @@ runs:
         setwd("${{ inputs.path }}")
         update_content(
           refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
+          refs_order = ${{ inputs.refs-order }},
           insert_after_section = "${{ inputs.insert-after-section }}",
-          version_tab = '${{ inputs.version-tab}}'
+          version_tab = '${{ inputs.version-tab }}'
         )
       shell: Rscript {0}
 
