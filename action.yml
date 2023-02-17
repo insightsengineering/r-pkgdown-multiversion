@@ -39,13 +39,13 @@ inputs:
       Example:
       """
       list(config = list(
-              tooltip = list(
-                main = "Tooltip for main branch"
-              ),
-              text = list(
-                main = "main branch"
-              )
-            ))
+        tooltip = list(
+          main = "Tooltip for main branch"
+        ),
+        text = list(
+          main = "main branch"
+        )
+      ))
       """
       String should be quoted with " sign
     required: false
@@ -61,8 +61,10 @@ inputs:
       c("main", "devel", "pre-release", "latest-tag")
     required: false
     default: c("main", "devel", "pre-release", "latest-tag")
-
-
+  latest-tag-alt-name:
+    description: An alternate name for the 'latest-tag' item
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -79,7 +81,13 @@ runs:
         rm -rf latest-tag
         [[ "${latest_tag}" != "" ]] \
           && cp -r "${latest_tag}" latest-tag \
-          || echo "No tags found, not creating symlink for latest tag"
+          || echo "No tags found, not creating directory for latest tag"
+        if [[ "${{ inputs.latest-tag-alt-name }}" != "" && -d latest-tag ]]
+        then {
+          rm -rf ${{ inputs.latest-tag-alt-name }}
+          cp -r latest-tag ${{ inputs.latest-tag-alt-name }}
+        }
+        fi
       shell: bash
 
     - name: Create redirect page
