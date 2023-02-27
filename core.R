@@ -108,7 +108,7 @@ prepare_dropdown_button <- function(refs_to_list = paste(
       id="dropdown-reports">Reports</a>',
     '<div class="dropdown-menu" aria-labelledby="dropdown-reports">',
     '<a class="nav-link" href="coverage-report/coverage-report.html">Coverage report</a>',
-    '<a class="nav-link" href="junit-report/junit-result.html">Unit test report</a>',
+    '<a class="nav-link" href="junit-report/junit-report.html">Unit test report</a>',
     '</div></li>',
     paste("</div></li>", end_tag, sep = "\n")
   )
