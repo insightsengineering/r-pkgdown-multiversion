@@ -100,16 +100,6 @@ prepare_dropdown_button <- function(refs_to_list = paste(
     ),
     '<div class="dropdown-menu" aria-labelledby="dropdown-versions">',
     menu_items,
-    "</div></li>",
-    '<li class="nav-item dropdown">',
-    '<a href="#" class="nav-link dropdown-toggle"
-      data-bs-toggle="dropdown" role="button"
-      aria-expanded="false" aria-haspopup="true"
-      id="dropdown-reports">Reports</a>',
-    '<div class="dropdown-menu" aria-labelledby="dropdown-reports">',
-    '<a class="nav-link" href="coverage-report/coverage-report.html">Coverage report</a>',
-    '<a class="nav-link" href="junit-report/junit-report.html">Unit test report</a>',
-    '</div></li>',
     paste("</div></li>", end_tag, sep = "\n")
   )
   return(button)
