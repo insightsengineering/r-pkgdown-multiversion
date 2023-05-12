@@ -127,7 +127,7 @@ update_content <- function(refs_to_list = paste(
 
   html_files <- list.files(
     path = ".",
-    pattern = ".html$",
+    pattern = ".json$|.html$",
     include.dirs = FALSE,
     recursive = TRUE,
     full.names = TRUE
