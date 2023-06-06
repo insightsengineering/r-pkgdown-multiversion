@@ -24,7 +24,7 @@ inputs:
       This input should be a regular expression in R.
     required: false
     default: >-
-      ^main$|^devel$|^pre-release$|^latest-tag$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$
+      ^main$|^devel$|^pre-release$|^latest-tag$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
   insert-after-section:
     description:
       After which section in the navbar should the 'Versions'
@@ -65,6 +65,10 @@ inputs:
     description: An alternate name for the 'latest-tag' item
     required: false
     default: ''
+  release-candidate-alt-name:
+    description: An alternate name for the 'release-candidate' item
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -77,15 +81,29 @@ runs:
           | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$" \
           | sort -t "." -k1,1n -k2,2n -k3,3n \
           | tail -1)
+        latest_rc_tag=$(ls -1d * \
+          | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)(-rc[0-9]+)$" \
+          | sort -t "." -k1,1n -k2,2n -k3,3n \
+          | tail -1)
         set -o pipefail
         rm -rf latest-tag
+        rm -rf release-candidate
         [[ "${latest_tag}" != "" ]] \
           && cp -r "${latest_tag}" latest-tag \
-          || echo "No tags found, not creating directory for latest tag"
+          || echo "No latest tag found, not creating directory for latest-tag"
+        [[ "${latest_rc_tag}" != "" ]] \
+          && cp -r "${latest_rc_tag}" release-candidate \
+          || echo "No release candidate tag found, not creating directory for release-candidate"
         if [[ "${{ inputs.latest-tag-alt-name }}" != "" && -d latest-tag ]]
         then {
           rm -rf ${{ inputs.latest-tag-alt-name }}
           cp -r latest-tag ${{ inputs.latest-tag-alt-name }}
+        }
+        fi
+        if [[ "${{ inputs.release-candidate-alt-name }}" != "" && -d release-candidate ]]
+        then {
+          rm -rf ${{ inputs.release-candidate-alt-name }}
+          cp -r latest-tag ${{ inputs.release-candidate-alt-name }}
         }
         fi
       shell: bash
