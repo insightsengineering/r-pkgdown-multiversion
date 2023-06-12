@@ -24,7 +24,7 @@ inputs:
       This input should be a regular expression in R.
     required: false
     default: >-
-      ^main$|^devel$|^pre-release$|^latest-tag$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
+      ^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
   insert-after-section:
     description:
       After which section in the navbar should the 'Versions'
