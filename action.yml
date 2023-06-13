@@ -103,7 +103,7 @@ runs:
         if [[ "${{ inputs.release-candidate-alt-name }}" != "" && -d release-candidate ]]
         then {
           rm -rf ${{ inputs.release-candidate-alt-name }}
-          cp -r latest-tag ${{ inputs.release-candidate-alt-name }}
+          cp -r release-candidate ${{ inputs.release-candidate-alt-name }}
         }
         fi
       shell: bash
