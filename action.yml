@@ -89,10 +89,20 @@ runs:
         rm -rf latest-tag
         rm -rf release-candidate
         [[ "${latest_tag}" != "" ]] \
-          && cp -r "${latest_tag}" latest-tag \
+          && ( \
+            cp -r "${latest_tag}" latest-tag \
+            && perl -p -i -e \
+              "s@${latest_tag}@latest-tag@g" \
+              latest-tag/search.json
+          ) \
           || echo "No latest tag found, not creating directory for latest-tag"
         [[ "${latest_rc_tag}" != "" ]] \
-          && cp -r "${latest_rc_tag}" release-candidate \
+          && ( \
+            cp -r "${latest_rc_tag}" release-candidate \
+            && perl -p -i -e \
+              "s@${latest_rc_tag}@release-candidate@g" \
+              release-candidate/search.json
+          ) \
           || echo "No release candidate tag found, not creating directory for release-candidate"
         if [[ "${{ inputs.latest-tag-alt-name }}" != "" && -d latest-tag ]]
         then {
