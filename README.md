@@ -8,6 +8,7 @@ This Github Actions works under the following assumptions:
 * Documentation is published to the `gh-pages` branch of the package repository and Github Pages is enabled at the root level of the branch
 * The version of `pkgdown` used to generate the documentation is `>= v2.0.0`
 * The `pkgdown` documentation uses Bootstrap 5
+* The `URL` field in the package DESCRIPTION file contains a reference to the pkgdown site URL (see step 1 [here](https://pkgdown.r-lib.org/articles/pkgdown.html#promoting))
 
 An example of the output of the action can be seen below:
 

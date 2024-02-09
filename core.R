@@ -18,6 +18,14 @@ base_url <- paste0(
 )
 search_index_file <- "search.json"
 
+handle_missing_refs_list <- function(refs_to_list) {
+  if (refs_to_list == "") {
+    return("^(?!\\.git$).+$")
+  }
+  return(refs_to_list)
+}
+
+
 filter_versions <- function(refs_to_list = paste(
                               "^main$",
                               "^devel$",
@@ -37,7 +45,7 @@ filter_versions <- function(refs_to_list = paste(
   )
 
   # Filter versions according to refs_to_list
-  return(versions[grep(refs_to_list, versions)])
+  return(versions[grep(handle_missing_refs_list(refs_to_list), versions)])
 }
 
 update_search_indexes <- function(refs_to_list = paste(
@@ -49,7 +57,7 @@ update_search_indexes <- function(refs_to_list = paste(
                                     sep = "|"
                                   )) {
   # Filter versions according to refs_to_list
-  versions <- filter_versions(refs_to_list)
+  versions <- filter_versions(handle_missing_refs_list(refs_to_list))
 
   oldwd <- getwd()
   for (version in versions) {
@@ -90,7 +98,7 @@ prepare_dropdown_button <- function(
   conf <- eval(parse(text = version_tab))
 
   # Filter versions according to refs_to_list
-  versions <- filter_versions(refs_to_list)
+  versions <- filter_versions(handle_missing_refs_list(refs_to_list))
   output <- c()
 
   # Append versions to output vector according to
@@ -195,7 +203,7 @@ update_content <- function(
     ),
     version_tab = "") {
   dropdown_button <-
-    prepare_dropdown_button(refs_to_list, refs_order, version_tab)
+    prepare_dropdown_button(handle_missing_refs_list(refs_to_list), refs_order, version_tab)
 
   html_files <- list.files(
     path = ".",
