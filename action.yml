@@ -134,7 +134,7 @@ runs:
         touch .nojekyll
       shell: bash
 
-    - name: Create root-level pkdown.yml
+    - name: Create root-level pkgdown.yml
       run: |
         cd ${{ inputs.path }}
         if [ -f $DEFAULT_LANDING_PAGE/pkgdown.yml ]
