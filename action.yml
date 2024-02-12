@@ -134,6 +134,19 @@ runs:
         touch .nojekyll
       shell: bash
 
+    - name: Create root-level pkgdown.yml
+      run: |
+        cd ${{ inputs.path }}
+        if [ -f $DEFAULT_LANDING_PAGE/pkgdown.yml ]
+        then {
+          cp $DEFAULT_LANDING_PAGE/pkgdown.yml .
+          sed -i -E \
+            "/$DEFAULT_LANDING_PAGE/! s/(\/(reference|articles))/\/$DEFAULT_LANDING_PAGE\1/g" \
+            pkgdown.yml
+        }
+        fi
+      shell: bash
+
     - name: Run multi-version site creation script
       run: |
         source(file.path(
