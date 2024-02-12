@@ -137,6 +137,7 @@ runs:
     - name: Create root-level pkgdown.yml
       run: |
         cd ${{ inputs.path }}
+        DEFAULT_LANDING_PAGE="${{ inputs.default-landing-page }}"
         if [ -f $DEFAULT_LANDING_PAGE/pkgdown.yml ]
         then {
           cp $DEFAULT_LANDING_PAGE/pkgdown.yml .
@@ -162,7 +163,7 @@ runs:
       shell: Rscript {0}
 
     - name: Commit and push changes
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "[actions skip] Built site for ${{ github.event.repository.name }}@${{ github.sha }}"
         repository: ${{ inputs.path }}
