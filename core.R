@@ -45,7 +45,13 @@ filter_versions <- function(refs_to_list = paste(
   )
 
   # Filter versions according to refs_to_list
-  return(versions[grep(handle_missing_refs_list(refs_to_list), versions)])
+  return(versions[
+    grep(
+      handle_missing_refs_list(refs_to_list),
+      versions,
+      perl = TRUE
+    )
+  ])
 }
 
 update_search_indexes <- function(refs_to_list = paste(
@@ -57,7 +63,7 @@ update_search_indexes <- function(refs_to_list = paste(
                                     sep = "|"
                                   )) {
   # Filter versions according to refs_to_list
-  versions <- filter_versions(handle_missing_refs_list(refs_to_list))
+  versions <- filter_versions(refs_to_list)
 
   oldwd <- getwd()
   for (version in versions) {
@@ -98,7 +104,7 @@ prepare_dropdown_button <- function(
   conf <- eval(parse(text = version_tab))
 
   # Filter versions according to refs_to_list
-  versions <- filter_versions(handle_missing_refs_list(refs_to_list))
+  versions <- filter_versions(refs_to_list)
   output <- c()
 
   # Append versions to output vector according to
