@@ -268,7 +268,13 @@ update_content <- function(
 
   # Construct the string to search for in the HTML files to insert the dropdown button after
   insert_after <-
-    paste0('index.html">', insert_after_section, "</a></li>")
+    paste0('index.html">', insert_after_section, "</a>")
+
+  # Adjust the insert line location based on the version of pkgdown
+  pkgdown_version <- as.character(packageVersion("pkgdown"))
+  if (compareVersion(pkgdown_version, "2.1.0") >= 0) {
+    insert_after <- paste0(insert_after, "</li>")
+  }
 
   # Iterate over each HTML file, updates the content by inserting the
   # dropdown button, and writes the updated content back to the file
@@ -290,7 +296,11 @@ update_content <- function(
     }
 
     # Find the line number where the dropdown button should be inserted
-    insert_line <- grep(pattern = insert_after, x = html_content)
+    insert_line <-
+      grep(pattern = insert_after, x = html_content) + 1
+    if (compareVersion(pkgdown_version, "2.1.0") >= 0) {
+      insert_line <- insert_line - 1
+    }
 
     # Check if the insert line is found
     if (length(insert_line) > 0) {
