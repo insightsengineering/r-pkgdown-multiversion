@@ -266,16 +266,6 @@ update_content <- function(
     full.names = TRUE
   )
 
-  # Construct the string to search for in the HTML files to insert the dropdown button after
-  insert_after <-
-    paste0('index.html">', insert_after_section, "</a>")
-
-  # Adjust the insert line location based on the version of pkgdown
-  pkgdown_version <- as.character(packageVersion("pkgdown"))
-  if (compareVersion(pkgdown_version, "2.1.0") >= 0) {
-    insert_after <- paste0(insert_after, "</li>")
-  }
-
   # Iterate over each HTML file, updates the content by inserting the
   # dropdown button, and writes the updated content back to the file
   for (f in html_files) {
@@ -285,6 +275,7 @@ update_content <- function(
     # Replace previous instances
     drowdown_start_line <-
       grep(pattern = start_tag, x = html_content)
+
     # Find the start and end lines of the dropdown button in the HTML content
     dropdown_end_line <- grep(pattern = end_tag, x = html_content)
 
@@ -293,6 +284,22 @@ update_content <- function(
       length(dropdown_end_line) > 0) {
       html_content <-
         html_content[-(drowdown_start_line:dropdown_end_line)]
+    }
+
+    # Construct the string to search for in the HTML files to insert the dropdown button after
+    insert_after <-
+      paste0('index.html">', insert_after_section, "</a>")
+
+    # Extract the package version from the string
+    pkgdown_version <- "0.0.0"
+    pkgdown_version_match <- grep("pkgdown</a> \\d+\\.\\d+\\.\\d+", html_content, value = TRUE)
+    if (length(pkgdown_version_match) > 0) {
+      pkgdown_version <- gsub(".*?(\\d+\\.\\d+\\.\\d+).*", "\\1", pkgdown_version_match)
+    }
+
+    # Adjust the insert line location based on the version of pkgdown
+    if (compareVersion(pkgdown_version, "2.1.0") >= 0) {
+      insert_after <- paste0(insert_after, "</li>")
     }
 
     # Find the line number where the dropdown button should be inserted
