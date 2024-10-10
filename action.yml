@@ -124,19 +124,11 @@ runs:
         touch .nojekyll
       shell: bash
 
-    - name: Run multi-version site creation script
+    - name: Debug
       run: |
-        source(file.path(
-          Sys.getenv("GITHUB_ACTION_PATH"), "core.R")
-        )
-        setwd("${{ inputs.path }}")
-        update_content(
-          refs_to_list = "${{ inputs.branches-or-tags-to-list }}",
-          refs_order = ${{ inputs.refs-order }},
-          insert_after_section = "${{ inputs.insert-after-section }}",
-          version_tab = '${{ inputs.version-tab }}'
-        )
-      shell: Rscript {0}
+        sleep 1
+      shell: bash
+
 
     - name: Commit and push changes
       uses: stefanzweifel/git-auto-commit-action@v4
