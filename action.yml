@@ -127,7 +127,7 @@ runs:
     - name: Add drop-down to docs
       run: |
         # TODO parametrize
-        python ../r-pkgdown-multiversion/core.py . \
+        python r-pkgdown-multiversion/core.py . \
           --pattern '^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$' \
           --refs_order main latest-tag --n 1
           --base_url https://insightsengineering.github.io/teal/
