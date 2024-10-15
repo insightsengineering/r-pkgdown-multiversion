@@ -55,19 +55,18 @@ def generate_dropdown_list(directory, pattern, refs_order, base_url):
 
     return nav_item
 
-def insert_html_after_nth_li(tree, dropdown_list, n):
+def insert_html_after_last_li(tree, dropdown_list):
     """
     Inserts the drop-down list after the n-th <li> item in the unordered list.
 
     :param tree: lxml HTML tree object.
     :param dropdown_list: str, HTML markup containing the drop-down list to insert.
-    :param n: int, Position after which the drop-down list will be inserted (0-based).
     """
 
     # Find <li> elements representing items in the nav-bar.
     li_elements = tree.xpath('//ul/li[contains(@class, "nav-item")]')
 
-    if n < len(li_elements):
+    if li_elements:
         # Create a new element from the drop-down list markup
         try:
             custom_element = html.fromstring(dropdown_list)
@@ -76,14 +75,14 @@ def insert_html_after_nth_li(tree, dropdown_list, n):
             return False
 
         # Get the n-th element
-        nth_li = li_elements[n]
+        last_li = li_elements[-1]
 
         # Insert the custom element after the n-th element
-        nth_li.addnext(custom_element)
+        last_li.addnext(custom_element)
 
     return True
 
-def process_html_files_in_directory(directory, pattern, refs_order, n, base_url):
+def process_html_files_in_directory(directory, pattern, refs_order, base_url):
     processed_files = set()
 
     # Generate the drop-down list
@@ -120,15 +119,8 @@ def process_html_files_in_directory(directory, pattern, refs_order, n, base_url)
                     print(f"Error parsing the HTML: {e}", file=sys.stderr)
                     continue
 
-                # TODO Debug - remove
-                # print('==================================================================')
-                # print(file_path)
-                # for li in tree.xpath('//ul/li[contains(@class, "nav-item")]'):
-                #     print(etree.tostring(li, pretty_print=True, encoding='unicode'))
-                #     print('------------')
-
                 # Insert the drop-down list
-                success = insert_html_after_nth_li(tree, dropdown_list, n)
+                success = insert_html_after_last_li(tree, dropdown_list)
 
                 if not success:
                     print(f"❌ {file_path}", file=sys.stderr)
@@ -158,13 +150,12 @@ def main():
     parser.add_argument('directory', help='Path to the directory containing HTML files.')
     parser.add_argument('--pattern', required=True, help='Regular expression pattern to match directory names.')
     parser.add_argument('--refs_order', nargs='+', required=True, help='List determining the order of items to appear at the beginning.')
-    parser.add_argument('--n', type=int, required=True, help='Position after which the drop-down list will be inserted (0-based).')
     parser.add_argument('--base_url', required=True, help='Base URL to be used in the hrefs.')
 
     args = parser.parse_args()
 
     # Process all HTML files in the specified directory
-    process_html_files_in_directory(args.directory, args.pattern, args.refs_order, args.n, args.base_url)
+    process_html_files_in_directory(args.directory, args.pattern, args.refs_order, args.base_url)
 
 if __name__ == '__main__':
     main()

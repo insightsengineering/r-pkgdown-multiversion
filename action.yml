@@ -25,37 +25,6 @@ inputs:
     required: false
     default: >-
       ^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
-  insert-after-section:
-    description:
-      After which section in the navbar should the 'Versions'
-      dropdown be added? Choose between 'Reference' and 'Changelog'
-      for the surest of choices.
-    required: false
-    default: Changelog
-  insert-after-list-item:
-    description: |
-      After which item in the navbar should the version drop-down be added?
-    required: false
-    default: "3"
-
-  version-tab:
-    description: |
-      Configuration how should the dropdownlist appear for multiple versions.
-      It should be set as an ASCII text representation of an R list object
-      Example:
-      """
-      list(config = list(
-        tooltip = list(
-          main = "Tooltip for main branch"
-        ),
-        text = list(
-          main = "main branch"
-        )
-      ))
-      """
-      String should be quoted with " sign
-    required: false
-    default: ""
   refs-order:
     description: |
       The order in which refs should appear in the drop-down list. Versions not in the vector
@@ -63,10 +32,10 @@ inputs:
       If docs have never been generated for the ref, the ref will not appear in the
       drop-down. Similarly, if docs have been generated for the ref, but the ref is not
       listed in the vector, it will not appear in the drop-down.
-      Example:
-      c("main", "devel", "pre-release", "latest-tag")
+      Example (the refs on the list should be separated by space):
+      main devel pre-release latest-tag
     required: false
-    default: c("main", "devel", "pre-release", "latest-tag")
+    default: "main devel pre-release latest-tag"
   latest-tag-alt-name:
     description: An alternate name for the 'latest-tag' item
     required: false
@@ -133,15 +102,10 @@ runs:
 
     - name: Run multi-version site creation script
       run: |
-        ls -la ${{ github.event.repository.name }}
         pip install lxml packaging
-        # Important: When migrating from R-based implementation to Python-based implementation,
-        # inputs.insert-after-list-item should be used instead of inputs.insert-after-section.
-        # The value for inputs.insert-after-list-item might be different for each repository,
-        # depending on which items are configured to appear in the navbar.
         python ${GITHUB_ACTION_PATH}/core.py ${{ github.event.repository.name }}/ \
           --pattern '^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$' \
-          --refs_order main latest-tag --n ${{ inputs.insert-after-list-item }} \
+          --refs_order ${{ inputs.refs-order }} \
           --base_url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       shell: bash
 
