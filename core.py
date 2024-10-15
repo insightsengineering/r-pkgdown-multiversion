@@ -63,8 +63,15 @@ def insert_html_after_last_li(tree, dropdown_list):
     :param dropdown_list: str, HTML markup containing the drop-down list to insert.
     """
 
+    # Find the first <ul> element in the document
+    ul_element = tree.xpath('//ul[1]')
+
+    if not ul_element:
+        print("No <ul> element found in the document.", file=sys.stderr)
+        return False
+
     # Find <li> elements representing items in the nav-bar.
-    li_elements = tree.xpath('//ul/li[contains(@class, "nav-item")]')
+    li_elements = ul_element[0].xpath('.//li[contains(@class, "nav-item")]')
 
     if li_elements:
         # Create a new element from the drop-down list markup
