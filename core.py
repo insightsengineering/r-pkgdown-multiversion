@@ -81,7 +81,7 @@ def insert_html_after_last_li(tree, dropdown_list):
             print(f"Error parsing the drop-down list: {e}", file=sys.stderr)
             return False
 
-        # Get the n-th element
+        # Get the last element on the <ul> list.
         last_li = li_elements[-1]
 
         # Insert the custom element after the n-th element
@@ -161,6 +161,51 @@ def process_html_files_in_directory(directory, pattern, refs_order, base_url):
                 # Mark this file as processed
                 processed_files.add(file_path)
 
+def update_search_json_urls(directory, pattern, base_url):
+    """
+    Looks for directories matching the pattern and updates URLs in `search.json` files.
+
+    :param directory: The root directory to search for matching directories.
+    :param pattern: The regular expression pattern to match directory names.
+    """
+    # Compile the pattern
+    regex = re.compile(pattern)
+
+    # Find all matching directories
+    matching_dirs = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d)) and regex.match(d)]
+
+    for current_directory in matching_dirs:
+        search_json_path = os.path.join(directory, current_directory, 'search.json')
+
+        # Check if search.json exists in the current directory
+        if not os.path.isfile(search_json_path):
+            continue
+
+        # Read and update the search.json file
+        try:
+            with open(search_json_path, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+
+            version = current_directory
+
+            # Regex pattern to match URLs that start with the base URL but don't have the version
+            # corresponding to the current directory immediately afterwards.
+            url_pattern = re.compile(rf'({re.escape(base_url)})(?!{re.escape(version)})')
+
+            # Replace the matched URLs with the updated URLs (containing given version).
+            updated_content = url_pattern.sub(f'{base_url}{version}/', file_content)
+
+            # Write the updated content back to the search.json file if changes were made
+            if updated_content != file_content:
+                with open(search_json_path, 'w', encoding='utf-8') as f:
+                    f.write(updated_content)
+                print(f"Updated URLs in {search_json_path}")
+            else:
+                print(f"No URLs to update in {search_json_path}")
+
+        except Exception as e:
+            print(f"An unexpected error occurred while processing '{search_json_path}': {e}", file=sys.stderr)
+
 def main():
     parser = argparse.ArgumentParser(description='Insert the multi-version drop-down list after the n-th <li> item in unordered lists in all HTML files within a directory.')
     parser.add_argument('directory', help='Path to the directory containing HTML files.')
@@ -172,6 +217,9 @@ def main():
 
     # Process all HTML files in the specified directory
     process_html_files_in_directory(args.directory, args.pattern, args.refs_order, args.base_url)
+
+    # Update URLs in search.json files
+    update_search_json_urls(args.directory, args.pattern, args.base_url)
 
 if __name__ == '__main__':
     main()
