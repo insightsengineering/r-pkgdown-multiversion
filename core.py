@@ -7,7 +7,7 @@ from packaging.version import Version, InvalidVersion
 
 def generate_dropdown_list(directory, pattern, refs_order, base_url):
     """
-    Generates custom HTML markup to be inserted based on matching directories in the given directory
+    Generates version drop-down list to be inserted based on matching directories in the given directory
     and refs_order.
 
     :param directory: The root directory to search for matching directories.
@@ -51,24 +51,24 @@ def generate_dropdown_list(directory, pattern, refs_order, base_url):
 
     return nav_item
 
-def insert_html_after_nth_li(tree, custom_markup, n):
+def insert_html_after_nth_li(tree, dropdown_list, n):
     """
-    Inserts custom HTML markup after the n-th <li> item in the unordered list.
+    Inserts the drop-down list after the n-th <li> item in the unordered list.
 
     :param tree: lxml HTML tree object.
-    :param custom_markup: str, Custom HTML markup to insert.
-    :param n: int, Position after which the custom markup will be inserted (0-based).
+    :param dropdown_list: str, HTML markup containing the drop-down list to insert.
+    :param n: int, Position after which the drop-down list will be inserted (0-based).
     """
-    # Find all elements within
 
-    li_elements = tree.xpath('//ul/li')
+    # Find <li> elements representing items in the nav-bar.
+    li_elements = tree.xpath('//ul/li[contains(@class, "nav-item")]')
 
     if n < len(li_elements):
-        # Create a new element from the custom markup
+        # Create a new element from the drop-down list markup
         try:
-            custom_element = html.fromstring(custom_markup)
+            custom_element = html.fromstring(dropdown_list)
         except Exception as e:
-            print(f"Error parsing the custom markup: {e}", file=sys.stderr)
+            print(f"Error parsing the drop-down list: {e}", file=sys.stderr)
             return False
 
         # Get the n-th element
@@ -82,8 +82,8 @@ def insert_html_after_nth_li(tree, custom_markup, n):
 def process_html_files_in_directory(directory, pattern, refs_order, n, base_url):
     processed_files = set()
 
-    # Generate custom markup
-    custom_markup = generate_dropdown_list(directory, pattern, refs_order, base_url)
+    # Generate the drop-down list
+    dropdown_list = generate_dropdown_list(directory, pattern, refs_order, base_url)
 
     # Find all HTML files in the directory and subdirectories
     for root, _, files in os.walk(directory):
@@ -116,11 +116,18 @@ def process_html_files_in_directory(directory, pattern, refs_order, n, base_url)
                     print(f"Error parsing the HTML: {e}", file=sys.stderr)
                     continue
 
-                # Insert the custom markup
-                success = insert_html_after_nth_li(tree, custom_markup, n)
+                # TODO Debug - remove
+                # print('==================================================================')
+                # print(file_path)
+                # for li in tree.xpath('//ul/li[contains(@class, "nav-item")]'):
+                #     print(etree.tostring(li, pretty_print=True, encoding='unicode'))
+                #     print('------------')
+
+                # Insert the drop-down list
+                success = insert_html_after_nth_li(tree, dropdown_list, n)
 
                 if not success:
-                    print(f"Error inserting HTML markup to '{file_path}'.", file=sys.stderr)
+                    print(f"❌ {file_path}", file=sys.stderr)
                     continue
 
                 # Convert the modified part back to string and update the file.
@@ -137,15 +144,17 @@ def process_html_files_in_directory(directory, pattern, refs_order, n, base_url)
                     print(f"An unexpected error occurred while writing to the file '{file_path}': {e}", file=sys.stderr)
                     continue
 
+                print(f"✅ {file_path}")
+
                 # Mark this file as processed
                 processed_files.add(file_path)
 
 def main():
-    parser = argparse.ArgumentParser(description='Insert custom HTML markup after the n-th <li> item in unordered lists in all HTML files within a directory.')
+    parser = argparse.ArgumentParser(description='Insert the multi-version drop-down list after the n-th <li> item in unordered lists in all HTML files within a directory.')
     parser.add_argument('directory', help='Path to the directory containing HTML files.')
     parser.add_argument('--pattern', required=True, help='Regular expression pattern to match directory names.')
     parser.add_argument('--refs_order', nargs='+', required=True, help='List determining the order of items to appear at the beginning.')
-    parser.add_argument('--n', type=int, required=True, help='Position after which the custom markup will be inserted (0-based).')
+    parser.add_argument('--n', type=int, required=True, help='Position after which the drop-down list will be inserted (0-based).')
     parser.add_argument('--base_url', required=True, help='Base URL to be used in the hrefs.')
 
     args = parser.parse_args()
