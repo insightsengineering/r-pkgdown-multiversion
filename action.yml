@@ -65,10 +65,20 @@ runs:
         rm -rf latest-tag
         rm -rf release-candidate
         [[ "${latest_tag}" != "" ]] \
-          && cp -r "${latest_tag}" latest-tag \
+          && ( \
+            cp -r "${latest_tag}" latest-tag \
+            && perl -p -i -e \
+              "s@${latest_tag}@latest-tag@g" \
+              latest-tag/search.json
+          ) \
           || echo "No latest tag found, not creating directory for latest-tag"
         [[ "${latest_rc_tag}" != "" ]] \
-          && cp -r "${latest_rc_tag}" release-candidate \
+          && ( \
+            cp -r "${latest_rc_tag}" release-candidate \
+            && perl -p -i -e \
+              "s@${latest_rc_tag}@release-candidate@g" \
+              release-candidate/search.json
+          ) \
           || echo "No release candidate tag found, not creating directory for release-candidate"
         if [[ "${{ inputs.latest-tag-alt-name }}" != "" && -d latest-tag ]]
         then {
@@ -100,6 +110,20 @@ runs:
         touch .nojekyll
       shell: bash
 
+    - name: Create root-level pkgdown.yml
+      run: |
+        cd ${{ inputs.path }}
+        DEFAULT_LANDING_PAGE="${{ inputs.default-landing-page }}"
+        if [ -f $DEFAULT_LANDING_PAGE/pkgdown.yml ]
+        then {
+          cp $DEFAULT_LANDING_PAGE/pkgdown.yml .
+          sed -i -E \
+            "/$DEFAULT_LANDING_PAGE/! s/(\/(reference|articles))/\/$DEFAULT_LANDING_PAGE\1/g" \
+            pkgdown.yml
+        }
+        fi
+      shell: bash
+
     - name: Run multi-version site creation script
       run: |
         pip install lxml packaging
@@ -110,7 +134,7 @@ runs:
       shell: bash
 
     - name: Commit and push changes
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "[actions skip] Built site for ${{ github.event.repository.name }}@${{ github.sha }}"
         repository: ${{ inputs.path }}
