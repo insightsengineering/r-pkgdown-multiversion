@@ -219,7 +219,9 @@ def main():
     process_html_files_in_directory(args.directory, args.pattern, args.refs_order, args.base_url)
 
     # Update URLs in search.json files
-    update_search_json_urls(args.directory, args.pattern, args.base_url)
+    # update_search_json_urls(args.directory, args.pattern, args.base_url)
+    # TODO remove
+    update_search_json_urls(args.directory, args.pattern, "https://insightsengineering.github.io/teal/")
 
 if __name__ == '__main__':
     main()
