@@ -32,6 +32,12 @@ inputs:
       for the surest of choices.
     required: false
     default: Changelog
+  insert-after-list-item:
+    description: |
+      After which item in the navbar should the version drop-down be added?
+    required: false
+    default: "3"
+
   version-tab:
     description: |
       Configuration how should the dropdownlist appear for multiple versions.
@@ -69,6 +75,7 @@ inputs:
     description: An alternate name for the 'release-candidate' item
     required: false
     default: ''
+
 
 runs:
   using: 'composite'
@@ -124,13 +131,17 @@ runs:
         touch .nojekyll
       shell: bash
 
-    - name: Add drop-down to docs
+    - name: Run multi-version site creation script
       run: |
-        # TODO parametrize
-        python r-pkgdown-multiversion/core.py . \
+        ls -la
+        # Important: When migrating from R-based implementation to Python-based implementation,
+        # inputs.insert-after-list-item should be used instead of inputs.insert-after-section.
+        # The value for inputs.insert-after-list-item might be different for each repository,
+        # depending on which items are configured to appear in the navbar.
+        python ${GITHUB_ACTION_PATH}/core.py . \
           --pattern '^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$' \
-          --refs_order main latest-tag --n 1
-          --base_url https://insightsengineering.github.io/teal/
+          --refs_order main latest-tag --n ${{ inputs.insert-after-list-item }}
+          --base_url https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY}/
       shell: bash
 
     - name: Commit and push changes
