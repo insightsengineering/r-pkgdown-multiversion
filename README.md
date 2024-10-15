@@ -1,4 +1,5 @@
-# MultiVersion pkgdown docs action
+<!-- BEGIN_ACTION_DOC -->
+# R pkgdown Multi Version docs
 
 Github Action to generate multiple versions of [`pkgdown`](https://pkgdown.r-lib.org/) docs for R packages.
 
@@ -14,80 +15,57 @@ An example of the output of the action can be seen below:
 
 ![Screenshot with example output](example.png)
 
-## Action type
-
+### Description
+Generates multisite R documentation created with pkgdown.
+### Action Type
 Composite
 
-## Inputs
+### Author
+Insights Engineering
 
+### Inputs
 * `path`:
 
-    _Description_: Path to package's root
+  _Description_: Path to package's root
 
-    _Required_: `false`
+  _Required_: `false`
 
-    _Default_: `.`
+  _Default_: `.`
 
 * `default-landing-page`:
 
-    _Description_: The default branch or tag on gh-pages that corresponds to the landing page. For instance, if your root index page on gh-pages is built using the 'main' branch, then the root page of the website will correspond to this page. If 'latest-tag' is selected, then the latest version will become the default.
+  _Description_: The default branch or tag on gh-pages that corresponds to the landing page.
+For instance, if your root index page on gh-pages is built using the 'main'
+branch, then the root page of the website will correspond to this page.
+If 'latest-tag' is selected, then the latest version will become the default.
 
-    _Required_: `false`
 
-    _Default_: `main`
+  _Required_: `false`
+
+  _Default_: `main`
 
 * `branches-or-tags-to-list`:
 
-    _Description_: Which branches or tags should be listed under the 'Versions' dropdown menu on the landing page? This input should be a regular expression in R.
-
-    _Required_: `false`
-
-    _Default_: `^main$|^devel$|^pre-release$|^latest-tag$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)$`
-
-* `insert-after-section`:
-
-  _Description_: After which section in the navbar should the 'Versions' dropdown be added? Choose between 'Reference' and 'Changelog' for the surest of choices.
+  _Description_: Which branches or tags should be listed under the 'Versions' dropdown menu on the landing page? This input should be a regular expression in R.
 
   _Required_: `false`
 
-  _Default_: `Changelog`
-
-* `version-tab`:
-
-  _Description_: Configuration of how the drop-down list should appear for multiple versions. It should be set as an ASCII text representation of an R list object. Example:
-
-    ```R
-      list(config = list(
-        tooltip = list(
-          main = "Tooltip for main branch"
-        ),
-        text = list(
-          main = "main branch"
-        )
-      ))
-    ```
-
-    String should be quoted with " sign
-
-  _Required_: `false`
-
-  _Default_: ``
+  _Default_: `^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\.)?([0-9]+\.)?([0-9]+)|^v([0-9]+\.)?([0-9]+\.)?([0-9]+)(-rc[0-9]+)$`
 
 * `refs-order`:
 
   _Description_: The order in which refs should appear in the drop-down list. Versions not in the vector
-    will appear below refs listed here.
+will appear below refs listed here.
+If docs have never been generated for the ref, the ref will not appear in the
+drop-down. Similarly, if docs have been generated for the ref, but the ref is not
+listed in the vector, it will not appear in the drop-down.
+Example (the refs on the list should be separated by space):
+main devel pre-release latest-tag
 
-    If docs have never been generated for the ref, the ref will not appear in the
-    drop-down. Similarly, if docs have been generated for the ref, but the ref is not
-    listed in the vector, it will not appear in the drop-down.
-
-    Example:
-    `c("main", "devel", "pre-release", "latest-tag")`
 
   _Required_: `false`
 
-  _Default_: `c("main", "devel", "pre-release", "latest-tag")`
+  _Default_: `main devel pre-release latest-tag`
 
 * `latest-tag-alt-name`:
 
@@ -95,12 +73,16 @@ Composite
 
   _Required_: `false`
 
-  _Default_: `''`
+  _Default_: `""`
 
-## Outputs
+* `release-candidate-alt-name`:
 
-None.
+  _Description_: An alternate name for the 'release-candidate' item
 
-## Usage
+  _Required_: `false`
 
-Please refer to [this example](https://github.com/insightsengineering/r.pkg.template/blob/main/.github/workflows/pkgdown.yaml) workflow to see how this action is used in an end-to-end documentation publishing workflow.
+  _Default_: `""`
+
+### Outputs
+None
+<!-- END_ACTION_DOC -->
