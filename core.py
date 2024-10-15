@@ -95,6 +95,8 @@ def process_html_files_in_directory(directory, pattern, refs_order, base_url):
     # Generate the drop-down list
     dropdown_list = generate_dropdown_list(directory, pattern, refs_order, base_url)
 
+    dropdown_regex = re.compile(r'<!-- start dropdown for versions -->.*<!-- end dropdown for versions -->', re.DOTALL)
+
     # Find all HTML files in the directory and subdirectories
     for root, _, files in os.walk(directory):
         for file in files:
@@ -118,6 +120,13 @@ def process_html_files_in_directory(directory, pattern, refs_order, base_url):
                 except Exception as e:
                     print(f"An unexpected error occurred while reading the file '{file_path}': {e}", file=sys.stderr)
                     continue
+
+                # Remove the content between the specified HTML comments:
+                # <!-- start dropdown for versions -->
+                # <!-- end dropdown for versions -->
+                # which in the previous implementation of this action were used to
+                # mark the beginning and ending of the version drop-down.
+                input_html = dropdown_regex.sub('', input_html)
 
                 # Parse the HTML content
                 try:
