@@ -133,15 +133,15 @@ runs:
 
     - name: Run multi-version site creation script
       run: |
-        ls -la
+        ls -la ${GITHUB_REPOSITORY}
         pip install lxml packaging
         # Important: When migrating from R-based implementation to Python-based implementation,
         # inputs.insert-after-list-item should be used instead of inputs.insert-after-section.
         # The value for inputs.insert-after-list-item might be different for each repository,
         # depending on which items are configured to appear in the navbar.
-        python ${GITHUB_ACTION_PATH}/core.py . \
+        python ${GITHUB_ACTION_PATH}/core.py ${GITHUB_REPOSITORY}/ \
           --pattern '^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$' \
-          --refs_order main latest-tag --n ${{ inputs.insert-after-list-item }}
+          --refs_order main latest-tag --n ${{ inputs.insert-after-list-item }} \
           --base_url https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY}/
       shell: bash
 
