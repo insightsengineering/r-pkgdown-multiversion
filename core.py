@@ -27,11 +27,15 @@ def generate_dropdown_list(directory, pattern, refs_order, base_url):
     ordered_refs = [d for d in refs_order if d in matching_dirs]
     remaining_refs = [d for d in matching_dirs if d not in refs_order]
 
-    # Sort the remaining items according to semantic versioning in descending order
-    try:
-        remaining_refs.sort(key=Version, reverse=True)
-    except InvalidVersion as e:
-        print(f"Semantic versioning sort failed: {e}", file=sys.stderr)
+    # Define a custom sorting key function
+    def sorting_key(ref):
+        try:
+            return (0, Version(ref))
+        except InvalidVersion:
+            return (1, ref)
+
+    # Sort the remaining items using the custom sorting key (semantic versioning first, then alphabetically)
+    remaining_refs.sort(key=sorting_key, reverse=True)
 
     # Combine the ordered and remaining items
     ordered_refs.extend(remaining_refs)
