@@ -134,6 +134,7 @@ runs:
     - name: Run multi-version site creation script
       run: |
         ls -la
+        pip install lxml packaging
         # Important: When migrating from R-based implementation to Python-based implementation,
         # inputs.insert-after-list-item should be used instead of inputs.insert-after-section.
         # The value for inputs.insert-after-list-item might be different for each repository,
