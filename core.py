@@ -1,9 +1,10 @@
 import argparse
 import os
-import sys
 import re
+import sys
+
 from lxml import etree, html
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 
 def generate_dropdown_list(directory, pattern, refs_order, base_url):

@@ -2,8 +2,8 @@ name: R pkgdown Multi Version docs
 author: Insights Engineering
 description: Generates multisite R documentation created with pkgdown.
 branding:
-  icon: 'anchor'
-  color: 'orange'
+  icon: "anchor"
+  color: "orange"
 inputs:
   path:
     description: Path to package's root
@@ -18,8 +18,7 @@ inputs:
     default: main
     required: false
   branches-or-tags-to-list:
-    description:
-      Which branches or tags should be listed under the
+    description: Which branches or tags should be listed under the
       'Versions' dropdown menu on the landing page?
       This input should be a regular expression in R.
     required: false
@@ -39,15 +38,14 @@ inputs:
   latest-tag-alt-name:
     description: An alternate name for the 'latest-tag' item
     required: false
-    default: ''
+    default: ""
   release-candidate-alt-name:
     description: An alternate name for the 'release-candidate' item
     required: false
-    default: ''
-
+    default: ""
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Create copy of latest tag
       run: |
