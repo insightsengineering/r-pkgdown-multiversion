@@ -8,8 +8,8 @@ from packaging.version import Version, InvalidVersion
 
 def generate_dropdown_list(directory, pattern, refs_order, base_url):
     """
-    Generates version drop-down list to be inserted based on matching directories in the given directory
-    and refs_order.
+    Generates version drop-down list to be inserted based
+    on matching directories in the given directory and refs_order.
 
     :param directory: The root directory to search for matching directories.
     :param pattern: A regular expression pattern to match directory names.
