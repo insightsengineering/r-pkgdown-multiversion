@@ -13,7 +13,7 @@ inputs:
     description: |
       The default branch or tag on gh-pages that corresponds to the landing page.
       For instance, if your root index page on gh-pages is built using the 'main'
-      branch, then the root page of the website will correspond to this page.
+      branch, then the root page of the site will correspond to this page.
       If 'latest-tag' is selected, then the latest version will become the default.
     default: main
     required: false
@@ -24,7 +24,7 @@ inputs:
       This input should be a regular expression in R.
     required: false
     default: >-
-      ^main$|^devel$|^pre-release$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
+      ^main$|^devel$|^prerelease$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
   refs-order:
     description: |
       The order in which refs should appear in the drop-down list. Versions not in the vector
@@ -33,9 +33,9 @@ inputs:
       drop-down. Similarly, if docs have been generated for the ref, but the ref is not
       listed in the vector, it will not appear in the drop-down.
       Example (the refs on the list should be separated by space):
-      main devel pre-release latest-tag
+      main devel prerelease latest-tag
     required: false
-    default: "main devel pre-release latest-tag"
+    default: "main devel prerelease latest-tag"
   latest-tag-alt-name:
     description: An alternate name for the 'latest-tag' item
     required: false

@@ -28,7 +28,12 @@ jobs:
           DEFAULT_BRANCH: main
           FIX_PYTHON_BLACK: true
           FIX_PYTHON_RUFF: true
+          FIX_PYTHON_ISORT: true
+          FIX_PYTHON_PYINK: true
           FIX_YAML_PRETTIER: true
+          FIX_MARKDOWN: true
+          FIX_MARKDOWN_PRETTIER: true
+          VALIDATE_CHECKOV: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit & Push Linting Fixes
