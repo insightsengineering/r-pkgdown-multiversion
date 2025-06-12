@@ -23,7 +23,7 @@ inputs:
       This input should be a regular expression in R.
     required: false
     default: >-
-      ^main$|^devel$|^prerelease$|^latest-tag$|^release-candidate$|^develop$|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)|^v([0-9]+\\.)?([0-9]+\\.)?([0-9]+)(-rc[0-9]+)$
+      ^main$|^devel$|^prerelease$|^latest-tag$|^release-candidate$|^develop$|^v?([0-9]+\\.)*[0-9]+(-rc[0-9]+)?$
   refs-order:
     description: |
       The order in which refs should appear in the drop-down list. Versions not in the vector

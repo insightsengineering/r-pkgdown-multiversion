@@ -31,11 +31,24 @@ def find_matching_directories(directory, regex):
     :param regex: Compiled regular expression pattern to match directory names.
     :return: List of matching directories.
     """
-    return [
-        d
-        for d in os.listdir(directory)
-        if os.path.isdir(os.path.join(directory, d)) and regex.match(d)
+    all_dirs = [
+        d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))
     ]
+
+    # Debug: Print all directories and regex pattern
+    print(f"DEBUG: All directories found: {all_dirs}", file=sys.stderr)
+    print(f"DEBUG: Regex pattern: {regex.pattern}", file=sys.stderr)
+
+    matching_dirs = []
+    for d in all_dirs:
+        if regex.match(d):
+            matching_dirs.append(d)
+            print(f"DEBUG: '{d}' matches regex", file=sys.stderr)
+        else:
+            print(f"DEBUG: '{d}' does NOT match regex", file=sys.stderr)
+
+    print(f"DEBUG: Final matching directories: {matching_dirs}", file=sys.stderr)
+    return matching_dirs
 
 
 def separate_refs(matching_dirs, refs_order):
@@ -59,8 +72,11 @@ def sorting_key(ref):
     :return: Tuple for sorting.
     """
     try:
-        return (0, Version(ref))
+        # Handle versions with 'v' prefix
+        version_str = ref[1:] if ref.startswith("v") else ref
+        return (0, Version(version_str))
     except InvalidVersion:
+        print(f"DEBUG: '{ref}' is not a valid semantic version", file=sys.stderr)
         return (1, ref)
 
 
@@ -121,11 +137,28 @@ def generate_dropdown_list(directory, pattern, refs_order, base_url):
     :param base_url: The base URL to be used in the hrefs.
     :return: str, Generated HTML markup.
     """
+    print(
+        f"DEBUG: Starting generate_dropdown_list for directory: {directory}",
+        file=sys.stderr,
+    )
+    print(f"DEBUG: Pattern: {pattern}", file=sys.stderr)
+    print(f"DEBUG: Refs order: {refs_order}", file=sys.stderr)
+
     regex = compile_pattern(pattern)
     matching_dirs = find_matching_directories(directory, regex)
+
+    print(f"DEBUG: Found {len(matching_dirs)} matching directories", file=sys.stderr)
+
     ordered_refs, remaining_refs = separate_refs(matching_dirs, refs_order)
+    print(f"DEBUG: Ordered refs: {ordered_refs}", file=sys.stderr)
+    print(f"DEBUG: Remaining refs before sorting: {remaining_refs}", file=sys.stderr)
+
     remaining_refs = sort_remaining_refs(remaining_refs)
+    print(f"DEBUG: Remaining refs after sorting: {remaining_refs}", file=sys.stderr)
+
     ordered_refs.extend(remaining_refs)
+    print(f"DEBUG: Final ordered refs: {ordered_refs}", file=sys.stderr)
+
     refs_dict = generate_refs_dict(ordered_refs, base_url)
     return generate_markup(ordered_refs, refs_dict)
 
