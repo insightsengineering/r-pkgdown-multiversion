@@ -5,12 +5,21 @@ Multi-version dropdown updater.
 import argparse
 import os
 import re
-import shutil
 import sys
+import shutil
+import logging
 from pathlib import Path
 
 from lxml import etree, html
 from packaging.version import InvalidVersion, Version
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stderr,
+)
+logger = logging.getLogger(__name__)
 
 
 def compile_pattern(pattern):
@@ -20,7 +29,14 @@ def compile_pattern(pattern):
     :param pattern: A regular expression pattern to match directory names.
     :return: Compiled regex pattern.
     """
-    return re.compile(pattern)
+    logger.debug(f"Compiling pattern: {pattern}")
+    try:
+        compiled = re.compile(pattern)
+        logger.debug(f"Successfully compiled pattern: {compiled.pattern}")
+        return compiled
+    except Exception as e:
+        logger.error(f"Failed to compile pattern: {e}")
+        raise
 
 
 def find_matching_directories(directory, regex):
@@ -31,23 +47,22 @@ def find_matching_directories(directory, regex):
     :param regex: Compiled regular expression pattern to match directory names.
     :return: List of matching directories.
     """
+    logger.debug(f"Searching in directory: {directory}")
+    logger.debug(f"Using regex pattern: {regex.pattern}")
+
     all_dirs = [
         d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))
     ]
-
-    # Debug: Print all directories and regex pattern
-    print(f"DEBUG: All directories found: {all_dirs}", file=sys.stderr)
-    print(f"DEBUG: Regex pattern: {regex.pattern}", file=sys.stderr)
+    logger.debug(f"Found directories: {all_dirs}")
 
     matching_dirs = []
     for d in all_dirs:
-        if regex.match(d):
+        match = regex.match(d)
+        logger.debug(f"Testing directory '{d}': {'matches' if match else 'no match'}")
+        if match:
             matching_dirs.append(d)
-            print(f"DEBUG: '{d}' matches regex", file=sys.stderr)
-        else:
-            print(f"DEBUG: '{d}' does NOT match regex", file=sys.stderr)
 
-    print(f"DEBUG: Final matching directories: {matching_dirs}", file=sys.stderr)
+    logger.debug(f"Matching directories: {matching_dirs}")
     return matching_dirs
 
 
@@ -61,6 +76,9 @@ def separate_refs(matching_dirs, refs_order):
     """
     ordered_refs = [d for d in refs_order if d in matching_dirs]
     remaining_refs = [d for d in matching_dirs if d not in refs_order]
+    logger.debug(
+        f"Separated refs - ordered: {ordered_refs}, remaining: {remaining_refs}"
+    )
     return ordered_refs, remaining_refs
 
 
@@ -76,7 +94,7 @@ def sorting_key(ref):
         version_str = ref[1:] if ref.startswith("v") else ref
         return (0, Version(version_str))
     except InvalidVersion:
-        print(f"DEBUG: '{ref}' is not a valid semantic version", file=sys.stderr)
+        logger.debug(f"'{ref}' is not a valid semantic version")
         return (1, ref)
 
 
@@ -88,7 +106,9 @@ def sort_remaining_refs(remaining_refs):
     :param remaining_refs: List of remaining references.
     :return: Sorted list of remaining references.
     """
+    logger.debug(f"Sorting remaining refs: {remaining_refs}")
     remaining_refs.sort(key=sorting_key, reverse=True)
+    logger.debug(f"Sorted remaining refs: {remaining_refs}")
     return remaining_refs
 
 
@@ -100,7 +120,9 @@ def generate_refs_dict(ordered_refs, base_url):
     :param base_url: The base URL to be used in the hrefs.
     :return: Dictionary of references and their URLs.
     """
-    return {ref: f"{base_url}{ref}" for ref in ordered_refs}
+    refs_dict = {ref: f"{base_url}{ref}" for ref in ordered_refs}
+    logger.debug(f"Generated refs dictionary: {refs_dict}")
+    return refs_dict
 
 
 def generate_markup(ordered_refs, refs_dict):
@@ -111,6 +133,9 @@ def generate_markup(ordered_refs, refs_dict):
     :param refs_dict: Dictionary of references and their URLs.
     :return: str, Generated HTML markup.
     """
+    logger.debug(f"Generating markup for {len(ordered_refs)} refs")
+    logger.debug(f"Refs to include: {ordered_refs}")
+
     nav_item = """
     <li class="nav-item dropdown">
     <a href="#" class="nav-link dropdown-toggle"
@@ -123,44 +148,9 @@ def generate_markup(ordered_refs, refs_dict):
         nav_item += '<a class="dropdown-item" data-toggle="tooltip" title="" '
         nav_item += f'href="{refs_dict[ref]}">{ref}</a>\n'
     nav_item += "</div></li>"
+
+    logger.debug(f"Generated nav item: {nav_item}")
     return nav_item
-
-
-def generate_dropdown_list(directory, pattern, refs_order, base_url):
-    """
-    Generates version drop-down list to be inserted based
-    on matching directories in the given directory and refs_order.
-
-    :param directory: The root directory to search for matching directories.
-    :param pattern: A regular expression pattern to match directory names.
-    :param refs_order: List determining the order of items to appear at the beginning.
-    :param base_url: The base URL to be used in the hrefs.
-    :return: str, Generated HTML markup.
-    """
-    print(
-        f"DEBUG: Starting generate_dropdown_list for directory: {directory}",
-        file=sys.stderr,
-    )
-    print(f"DEBUG: Pattern: {pattern}", file=sys.stderr)
-    print(f"DEBUG: Refs order: {refs_order}", file=sys.stderr)
-
-    regex = compile_pattern(pattern)
-    matching_dirs = find_matching_directories(directory, regex)
-
-    print(f"DEBUG: Found {len(matching_dirs)} matching directories", file=sys.stderr)
-
-    ordered_refs, remaining_refs = separate_refs(matching_dirs, refs_order)
-    print(f"DEBUG: Ordered refs: {ordered_refs}", file=sys.stderr)
-    print(f"DEBUG: Remaining refs before sorting: {remaining_refs}", file=sys.stderr)
-
-    remaining_refs = sort_remaining_refs(remaining_refs)
-    print(f"DEBUG: Remaining refs after sorting: {remaining_refs}", file=sys.stderr)
-
-    ordered_refs.extend(remaining_refs)
-    print(f"DEBUG: Final ordered refs: {ordered_refs}", file=sys.stderr)
-
-    refs_dict = generate_refs_dict(ordered_refs, base_url)
-    return generate_markup(ordered_refs, refs_dict)
 
 
 def find_navbar(tree):
@@ -170,16 +160,35 @@ def find_navbar(tree):
     :param tree: lxml HTML tree object.
     :return: First <ul> element with class 'navbar-nav' or None.
     """
+    logger.debug("Searching for navbar")
+
+    # Try the original XPath
     navbar = tree.xpath(
         "//div[@id='navbar']//ul[contains(@class, 'navbar-nav') and contains(@class, 'me-auto')]"
     )
-    if not navbar:
-        print(
-            "No <ul> element with class 'navbar-nav' found in the document.",
-            file=sys.stderr,
-        )
-        return None
-    return navbar[0]
+
+    if navbar:
+        logger.debug(f"Found navbar with original XPath: {navbar[0].get('class')}")
+        return navbar[0]
+
+    # Try alternative XPath patterns
+    alternative_patterns = [
+        "//ul[contains(@class, 'navbar-nav')]",
+        "//nav//ul[contains(@class, 'navbar-nav')]",
+        "//div[contains(@class, 'navbar')]//ul[contains(@class, 'navbar-nav')]",
+    ]
+
+    for pattern in alternative_patterns:
+        logger.debug(f"Trying alternative pattern: {pattern}")
+        navbar = tree.xpath(pattern)
+        if navbar:
+            logger.debug(
+                f"Found navbar with pattern '{pattern}': {navbar[0].get('class')}"
+            )
+            return navbar[0]
+
+    logger.error("No navbar found with any pattern")
+    return None
 
 
 def find_navbar_items(navbar):
@@ -190,7 +199,10 @@ def find_navbar_items(navbar):
     :return: List of <li> elements.
     """
     if navbar or navbar is not None:
-        return navbar.xpath('.//li[contains(@class, "nav-item")]')
+        items = navbar.xpath('.//li[contains(@class, "nav-item")]')
+        logger.debug(f"Found {len(items)} navbar items")
+        return items
+    logger.error("No navbar provided to find items")
     return []
 
 
@@ -204,7 +216,7 @@ def create_versions_dropdown(dropdown_list):
     try:
         return html.fromstring(dropdown_list, parser=etree.HTMLParser())
     except Exception as e:
-        print(f"Error parsing the drop-down list: {e}", file=sys.stderr)
+        logger.error(f"Error parsing the drop-down list: {e}")
         return None
 
 
@@ -216,42 +228,48 @@ def insert_versions_dropdown(tree, dropdown_list):
     :param dropdown_list: str, HTML markup containing the drop-down list to insert.
     :return: bool, True if successful, False otherwise.
     """
+    logger.debug("Attempting to insert dropdown")
+
     navbar = find_navbar(tree)
     if not navbar:
-        return False  # No navbar found
+        logger.error("No navbar found in the document")
+        return False
 
     navbar_items = find_navbar_items(navbar)
     if not navbar_items:
-        return False  # No navbar items found
+        logger.error("No navbar items found")
+        return False
 
     versions_dropdown = create_versions_dropdown(dropdown_list)
     if not versions_dropdown:
-        return False  # Failed to create dropdown
+        logger.error("Failed to create dropdown element")
+        return False
 
     # Find all <li> that contain a <div> with aria-labelledby="dropdown-versions"
     existing_dropdown = navbar.xpath('.//li[div/@aria-labelledby="dropdown-versions"]')
+    logger.debug(f"Found {len(existing_dropdown)} existing dropdowns")
 
     # If no existing dropdown is found, add the new dropdown to the end of the navbar
     if not existing_dropdown:
+        logger.debug("No existing dropdown found, adding new one")
         new_li = html.Element("div")
-        new_li.append(versions_dropdown)  # Append the new dropdown directly
-
-        # Append the new <li> to the last <li> item in the navbar
+        new_li.append(versions_dropdown)
         navbar[-1].addnext(new_li)
         return True
 
     # Remove duplicates by keeping track of IDs or contents
     existing_ids = set()
     for item in existing_dropdown:
-        dropdown_id = item.get("id")  # or another identifier if necessary
+        dropdown_id = item.get("id")
         if dropdown_id not in existing_ids:
             existing_ids.add(dropdown_id)
         else:
-            # Remove the duplicate
+            logger.debug(f"Removing duplicate dropdown with id {dropdown_id}")
             item.getparent().remove(item)
 
     # Replace the first remaining existing dropdown with the new versions_dropdown
     if existing_dropdown:
+        logger.debug("Replacing existing dropdown")
         existing_dropdown[0].getparent().replace(
             existing_dropdown[0], versions_dropdown
         )
@@ -270,15 +288,12 @@ def read_file(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.", file=sys.stderr)
+        logger.error(f"The file '{file_path}' was not found.")
     except PermissionError:
-        print(
-            f"Error: Permission denied to read the file '{file_path}'.", file=sys.stderr
-        )
+        logger.error(f"Permission denied to read the file '{file_path}'.")
     except Exception as e:
-        print(
-            f"An unexpected error occurred while reading the file '{file_path}': {e}",
-            file=sys.stderr,
+        logger.error(
+            f"An unexpected error occurred while reading the file '{file_path}': {e}"
         )
     return None
 
@@ -296,14 +311,10 @@ def write_file(file_path, content):
             f.write(content)
         return True
     except PermissionError:
-        print(
-            f"Error: Permission denied to write to the file '{file_path}'.",
-            file=sys.stderr,
-        )
+        logger.error(f"Permission denied to write to the file '{file_path}'.")
     except Exception as e:
-        print(
-            f"An unexpected error occurred while writing to the file '{file_path}': {e}",
-            file=sys.stderr,
+        logger.error(
+            f"An unexpected error occurred while writing to the file '{file_path}': {e}"
         )
     return False
 
@@ -316,6 +327,8 @@ def process_single_html_file(file_path, dropdown_list):
     :param dropdown_list: HTML content for the dropdown list.
     :return: bool, True if successful, False otherwise.
     """
+    logger.debug(f"Processing file: {file_path}")
+
     html_contents = read_file(file_path)
     if html_contents is None:
         return False
@@ -323,12 +336,12 @@ def process_single_html_file(file_path, dropdown_list):
     try:
         tree = html.fromstring(html_contents)
     except etree.XMLSyntaxError as e:
-        print(f"Error parsing the HTML: {e}", file=sys.stderr)
+        logger.error(f"Error parsing the HTML: {e}")
         return False
 
     success = insert_versions_dropdown(tree, dropdown_list)
     if not success:
-        print(f"❌ {file_path}", file=sys.stderr)
+        logger.error(f"Failed to process {file_path}")
         return False
 
     doctype = "<!DOCTYPE html>\n"
@@ -341,8 +354,48 @@ def process_single_html_file(file_path, dropdown_list):
     if not write_file(file_path, modified_html):
         return False
 
-    print(f"✅ {file_path}")
+    logger.info(f"Successfully processed {file_path}")
     return True
+
+
+def generate_dropdown_list(directory, pattern, refs_order, base_url):
+    """
+    Generates version drop-down list to be inserted based
+    on matching directories in the given directory and refs_order.
+
+    :param directory: The root directory to search for matching directories.
+    :param pattern: A regular expression pattern to match directory names.
+    :param refs_order: List determining the order of items to appear at the beginning.
+    :param base_url: The base URL to be used in the hrefs.
+    :return: str, Generated HTML markup.
+    """
+    logger.debug("Starting generate_dropdown_list")
+    logger.debug(f"Directory: {directory}")
+    logger.debug(f"Pattern: {pattern}")
+    logger.debug(f"Refs order: {refs_order}")
+    logger.debug(f"Base URL: {base_url}")
+
+    regex = compile_pattern(pattern)
+    matching_dirs = find_matching_directories(directory, regex)
+
+    logger.debug(f"Found {len(matching_dirs)} matching directories")
+
+    ordered_refs, remaining_refs = separate_refs(matching_dirs, refs_order)
+    logger.debug(f"Ordered refs: {ordered_refs}")
+    logger.debug(f"Remaining refs before sorting: {remaining_refs}")
+
+    remaining_refs = sort_remaining_refs(remaining_refs)
+    logger.debug(f"Remaining refs after sorting: {remaining_refs}")
+
+    ordered_refs.extend(remaining_refs)
+    logger.debug(f"Final ordered refs: {ordered_refs}")
+
+    refs_dict = generate_refs_dict(ordered_refs, base_url)
+    logger.debug(f"Generated refs dict: {refs_dict}")
+
+    markup = generate_markup(ordered_refs, refs_dict)
+    logger.debug(f"Generated markup: {markup}")
+    return markup
 
 
 def process_html_files_in_directory(directory, pattern, refs_order, base_url):
@@ -355,6 +408,7 @@ def process_html_files_in_directory(directory, pattern, refs_order, base_url):
     :param refs_order: List determining the order of items to appear at the beginning.
     :param base_url: Base URL to be used in the hrefs.
     """
+    logger.info(f"Processing HTML files in directory: {directory}")
     processed_files = set()
     dropdown_list = generate_dropdown_list(directory, pattern, refs_order, base_url)
 
@@ -378,6 +432,7 @@ def update_single_search_json(search_json_path, version, base_url):
     :param base_url: Base URL to be used in the hrefs.
     :return: bool, True if successful, False otherwise.
     """
+    logger.debug(f"Updating search.json: {search_json_path}")
     file_content = read_file(search_json_path)
     if file_content is None:
         return False
@@ -387,11 +442,11 @@ def update_single_search_json(search_json_path, version, base_url):
 
     if updated_content != file_content:
         if write_file(search_json_path, updated_content):
-            print(f"Updated URLs in {search_json_path}")
+            logger.info(f"Updated URLs in {search_json_path}")
             return True
-        print(f"Failed to update URLs in {search_json_path}")
+        logger.error(f"Failed to update URLs in {search_json_path}")
         return False
-    print(f"No URLs to update in {search_json_path}")
+    logger.debug(f"No URLs to update in {search_json_path}")
     return True
 
 
@@ -403,6 +458,7 @@ def update_search_json_urls(directory, pattern, base_url):
     :param pattern: Regular expression pattern to match directory names.
     :param base_url: Base URL to be used in the hrefs.
     """
+    logger.info(f"Updating search.json URLs in directory: {directory}")
     regex = compile_pattern(pattern)
     matching_dirs = find_matching_directories(directory, regex)
 
@@ -455,7 +511,7 @@ def find_latest_version_tag(directory):
 
         return latest_tag, latest_rc_tag
     except Exception as e:
-        print(f"Error finding latest tags: {e}", file=sys.stderr)
+        logger.error(f"Error finding latest tags: {e}")
         return None, None
 
 
@@ -481,10 +537,10 @@ def update_search_json_in_directory(directory, old_name, new_name):
         with open(search_json_path, "w", encoding="utf-8") as f:
             f.write(updated_content)
 
-        print(f"Updated search.json in {directory}: {old_name} -> {new_name}")
+        logger.info(f"Updated search.json in {directory}: {old_name} -> {new_name}")
         return True
     except Exception as e:
-        print(f"Error updating search.json in {directory}: {e}", file=sys.stderr)
+        logger.error(f"Error updating search.json in {directory}: {e}")
         return False
 
 
@@ -511,9 +567,9 @@ def create_tag_copies(directory, latest_tag_alt_name="", release_candidate_alt_n
         if latest_tag:
             shutil.copytree(latest_tag, "latest-tag")
             update_search_json_in_directory("latest-tag", latest_tag, "latest-tag")
-            print(f"Created latest-tag from {latest_tag}")
+            logger.info(f"Created latest-tag from {latest_tag}")
         else:
-            print("No latest tag found, not creating directory for latest-tag")
+            logger.warning("No latest tag found, not creating directory for latest-tag")
 
         # Create release-candidate copy
         if latest_rc_tag:
@@ -521,9 +577,9 @@ def create_tag_copies(directory, latest_tag_alt_name="", release_candidate_alt_n
             update_search_json_in_directory(
                 "release-candidate", latest_rc_tag, "release-candidate"
             )
-            print(f"Created release-candidate from {latest_rc_tag}")
+            logger.info(f"Created release-candidate from {latest_rc_tag}")
         else:
-            print(
+            logger.warning(
                 "No release candidate tag found, not creating directory for release-candidate"
             )
 
@@ -536,7 +592,7 @@ def create_tag_copies(directory, latest_tag_alt_name="", release_candidate_alt_n
             update_search_json_in_directory(
                 latest_tag_alt_name, "latest-tag", latest_tag_alt_name
             )
-            print(f"Created {latest_tag_alt_name} from latest-tag")
+            logger.info(f"Created {latest_tag_alt_name} from latest-tag")
 
         if release_candidate_alt_name and os.path.exists("release-candidate"):
             if os.path.exists(release_candidate_alt_name):
@@ -548,11 +604,11 @@ def create_tag_copies(directory, latest_tag_alt_name="", release_candidate_alt_n
                 "release-candidate",
                 release_candidate_alt_name,
             )
-            print(f"Created {release_candidate_alt_name} from release-candidate")
+            logger.info(f"Created {release_candidate_alt_name} from release-candidate")
 
         return True
     except Exception as e:
-        print(f"Error creating tag copies: {e}", file=sys.stderr)
+        logger.error(f"Error creating tag copies: {e}")
         return False
 
 
@@ -607,10 +663,10 @@ def create_redirect_page(
         # Create .nojekyll file
         Path(".nojekyll").touch()
 
-        print("Created redirect page and .nojekyll file")
+        logger.info("Created redirect page and .nojekyll file")
         return True
     except Exception as e:
-        print(f"Error creating redirect page: {e}", file=sys.stderr)
+        logger.error(f"Error creating redirect page: {e}")
         return False
 
 
@@ -643,13 +699,13 @@ def create_root_pkgdown_yml(directory, default_landing_page):
             with open("pkgdown.yml", "w", encoding="utf-8") as f:
                 f.write(updated_content)
 
-            print(f"Created root-level pkgdown.yml from {default_landing_page}")
+            logger.info(f"Created root-level pkgdown.yml from {default_landing_page}")
         else:
-            print(f"No pkgdown.yml found in {default_landing_page}")
+            logger.warning(f"No pkgdown.yml found in {default_landing_page}")
 
         return True
     except Exception as e:
-        print(f"Error creating root-level pkgdown.yml: {e}", file=sys.stderr)
+        logger.error(f"Error creating root-level pkgdown.yml: {e}")
         return False
 
 
@@ -702,13 +758,13 @@ def main():
     if args.setup_only or (
         args.default_landing_page and args.repository_name and args.repository_owner
     ):
-        print("Running setup steps...")
+        logger.info("Running setup steps...")
 
         # Step 1: Create tag copies
         if not create_tag_copies(
             args.directory, args.latest_tag_alt_name, args.release_candidate_alt_name
         ):
-            print("Failed to create tag copies", file=sys.stderr)
+            logger.error("Failed to create tag copies")
             return 1
 
         # Step 2: Create redirect page
@@ -720,18 +776,18 @@ def main():
                 args.repository_owner,
                 args.action_path or "",
             ):
-                print("Failed to create redirect page", file=sys.stderr)
+                logger.error("Failed to create redirect page")
                 return 1
 
         # Step 3: Create root-level pkgdown.yml
         if args.default_landing_page:
             if not create_root_pkgdown_yml(args.directory, args.default_landing_page):
-                print("Failed to create root-level pkgdown.yml", file=sys.stderr)
+                logger.error("Failed to create root-level pkgdown.yml")
                 return 1
 
     # Skip HTML processing if setup_only is True
     if args.setup_only:
-        print("Setup completed. Skipping HTML processing.")
+        logger.info("Setup completed. Skipping HTML processing.")
         return 0
 
     # Run HTML processing steps
