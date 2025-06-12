@@ -47,85 +47,29 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Create copy of latest tag
+    - name: Setup Python dependencies
       run: |
-        cd ${{ inputs.path }}
-        set +o pipefail
-        latest_tag=$(ls -1d * \
-          | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$" \
-          | sort -t "." -k1,1n -k2,2n -k3,3n \
-          | tail -1)
-        latest_rc_tag=$(ls -1d * \
-          | grep -E "^v([0-9]+\.)?([0-9]+\.)?([0-9]+)(-rc[0-9]+)$" \
-          | sort -t "." -k1,1n -k2,2n -k3,3n \
-          | tail -1)
-        set -o pipefail
-        rm -rf latest-tag
-        rm -rf release-candidate
-        [[ "${latest_tag}" != "" ]] \
-          && ( \
-            cp -r "${latest_tag}" latest-tag \
-            && perl -p -i -e \
-              "s@${latest_tag}@latest-tag@g" \
-              latest-tag/search.json
-          ) \
-          || echo "No latest tag found, not creating directory for latest-tag"
-        [[ "${latest_rc_tag}" != "" ]] \
-          && ( \
-            cp -r "${latest_rc_tag}" release-candidate \
-            && perl -p -i -e \
-              "s@${latest_rc_tag}@release-candidate@g" \
-              release-candidate/search.json
-          ) \
-          || echo "No release candidate tag found, not creating directory for release-candidate"
-        if [[ "${{ inputs.latest-tag-alt-name }}" != "" && -d latest-tag ]]
-        then {
-          rm -rf ${{ inputs.latest-tag-alt-name }}
-          cp -r latest-tag ${{ inputs.latest-tag-alt-name }}
-        }
-        fi
-        if [[ "${{ inputs.release-candidate-alt-name }}" != "" && -d release-candidate ]]
-        then {
-          rm -rf ${{ inputs.release-candidate-alt-name }}
-          cp -r release-candidate ${{ inputs.release-candidate-alt-name }}
-        }
-        fi
+        python3 -m pip install lxml packaging || pip3 install lxml packaging || pip install lxml packaging
       shell: bash
 
-    - name: Create redirect page
+    - name: Run setup steps (create tag copies, redirect page, pkgdown.yml)
       run: |
-        cd ${{ inputs.path }}
-        cp "${GITHUB_ACTION_PATH}/redirect.html" index.html
-        perl -p -i -e \
-          "s@DEFAULT_LANDING_PAGE@${{ inputs.default-landing-page }}@g" \
-          index.html
-        perl -p -i -e \
-          "s@REPOSITORY@${{ github.event.repository.name }}@g" \
-          index.html
-        perl -p -i -e \
-          "s@OWNER@${{ github.repository_owner }}@g" \
-          index.html
-        touch .nojekyll
-      shell: bash
-
-    - name: Create root-level pkgdown.yml
-      run: |
-        cd ${{ inputs.path }}
-        DEFAULT_LANDING_PAGE="${{ inputs.default-landing-page }}"
-        if [ -f $DEFAULT_LANDING_PAGE/pkgdown.yml ]
-        then {
-          cp $DEFAULT_LANDING_PAGE/pkgdown.yml .
-          sed -i -E \
-            "/$DEFAULT_LANDING_PAGE/! s/(\/(reference|articles))/\/$DEFAULT_LANDING_PAGE\1/g" \
-            pkgdown.yml
-        }
-        fi
+        python3 ${GITHUB_ACTION_PATH}/core.py ${{ inputs.path }} \
+          --pattern '${{ inputs.branches-or-tags-to-list }}' \
+          --refs_order '${{ inputs.refs-order }}' \
+          --base_url 'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/' \
+          --default_landing_page '${{ inputs.default-landing-page }}' \
+          --repository_name '${{ github.event.repository.name }}' \
+          --repository_owner '${{ github.repository_owner }}' \
+          --action_path '${GITHUB_ACTION_PATH}' \
+          --latest_tag_alt_name '${{ inputs.latest-tag-alt-name }}' \
+          --release_candidate_alt_name '${{ inputs.release-candidate-alt-name }}' \
+          --setup_only
       shell: bash
 
     - name: Run multi-version site creation script
       run: |
-        pip install lxml packaging
-        python ${GITHUB_ACTION_PATH}/core.py ${{ github.event.repository.name }}/ \
+        python3 ${GITHUB_ACTION_PATH}/core.py ${{ inputs.path }} \
           --pattern '${{ inputs.branches-or-tags-to-list }}' \
           --refs_order '${{ inputs.refs-order }}' \
           --base_url 'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/'

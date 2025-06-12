@@ -6,6 +6,8 @@ import argparse
 import os
 import re
 import sys
+import shutil
+from pathlib import Path
 
 from lxml import etree, html
 from packaging.version import InvalidVersion, Version
@@ -379,6 +381,245 @@ def update_search_json_urls(directory, pattern, base_url):
         update_single_search_json(search_json_path, current_directory, base_url)
 
 
+def find_latest_version_tag(directory):
+    """
+    Find the latest version tag in the directory.
+
+    :param directory: Directory to search in
+    :return: Tuple of (latest_tag, latest_rc_tag)
+    """
+    try:
+        dirs = [
+            d
+            for d in os.listdir(directory)
+            if os.path.isdir(os.path.join(directory, d))
+        ]
+
+        # Find latest version tag
+        version_pattern = re.compile(r"^v([0-9]+\.)?([0-9]+\.)?([0-9]+)$")
+        version_dirs = [d for d in dirs if version_pattern.match(d)]
+
+        latest_tag = None
+        if version_dirs:
+            # Sort by version number
+            def version_sort_key(v):
+                # Remove 'v' prefix and split by dots
+                version_str = v[1:] if v.startswith("v") else v
+                try:
+                    return Version(version_str)
+                except InvalidVersion:
+                    return Version("0.0.0")
+
+            latest_tag = sorted(version_dirs, key=version_sort_key)[-1]
+
+        # Find latest release candidate tag
+        rc_pattern = re.compile(r"^v([0-9]+\.)?([0-9]+\.)?([0-9]+)(-rc[0-9]+)$")
+        rc_dirs = [d for d in dirs if rc_pattern.match(d)]
+
+        latest_rc_tag = None
+        if rc_dirs:
+            latest_rc_tag = sorted(rc_dirs, key=version_sort_key)[-1]
+
+        return latest_tag, latest_rc_tag
+    except Exception as e:
+        print(f"Error finding latest tags: {e}", file=sys.stderr)
+        return None, None
+
+
+def update_search_json_in_directory(directory, old_name, new_name):
+    """
+    Update search.json file in a directory to replace old_name with new_name.
+
+    :param directory: Directory containing search.json
+    :param old_name: Old name to replace
+    :param new_name: New name to replace with
+    :return: bool, True if successful
+    """
+    search_json_path = os.path.join(directory, "search.json")
+    if not os.path.exists(search_json_path):
+        return True  # No search.json to update
+
+    try:
+        with open(search_json_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        updated_content = content.replace(old_name, new_name)
+
+        with open(search_json_path, "w", encoding="utf-8") as f:
+            f.write(updated_content)
+
+        print(f"Updated search.json in {directory}: {old_name} -> {new_name}")
+        return True
+    except Exception as e:
+        print(f"Error updating search.json in {directory}: {e}", file=sys.stderr)
+        return False
+
+
+def create_tag_copies(directory, latest_tag_alt_name="", release_candidate_alt_name=""):
+    """
+    Create copies of latest tag and release candidate directories.
+
+    :param directory: Root directory
+    :param latest_tag_alt_name: Alternative name for latest tag
+    :param release_candidate_alt_name: Alternative name for release candidate
+    :return: bool, True if successful
+    """
+    try:
+        os.chdir(directory)
+
+        latest_tag, latest_rc_tag = find_latest_version_tag(".")
+
+        # Remove existing directories
+        for dir_name in ["latest-tag", "release-candidate"]:
+            if os.path.exists(dir_name):
+                shutil.rmtree(dir_name)
+
+        # Create latest-tag copy
+        if latest_tag:
+            shutil.copytree(latest_tag, "latest-tag")
+            update_search_json_in_directory("latest-tag", latest_tag, "latest-tag")
+            print(f"Created latest-tag from {latest_tag}")
+        else:
+            print("No latest tag found, not creating directory for latest-tag")
+
+        # Create release-candidate copy
+        if latest_rc_tag:
+            shutil.copytree(latest_rc_tag, "release-candidate")
+            update_search_json_in_directory(
+                "release-candidate", latest_rc_tag, "release-candidate"
+            )
+            print(f"Created release-candidate from {latest_rc_tag}")
+        else:
+            print(
+                "No release candidate tag found, not creating directory for release-candidate"
+            )
+
+        # Create alt-name copies with correct search.json updates
+        if latest_tag_alt_name and os.path.exists("latest-tag"):
+            if os.path.exists(latest_tag_alt_name):
+                shutil.rmtree(latest_tag_alt_name)
+            shutil.copytree("latest-tag", latest_tag_alt_name)
+            # Fix the bug: update search.json to use alt-name instead of "latest-tag"
+            update_search_json_in_directory(
+                latest_tag_alt_name, "latest-tag", latest_tag_alt_name
+            )
+            print(f"Created {latest_tag_alt_name} from latest-tag")
+
+        if release_candidate_alt_name and os.path.exists("release-candidate"):
+            if os.path.exists(release_candidate_alt_name):
+                shutil.rmtree(release_candidate_alt_name)
+            shutil.copytree("release-candidate", release_candidate_alt_name)
+            # Fix the bug: update search.json to use alt-name instead of "release-candidate"
+            update_search_json_in_directory(
+                release_candidate_alt_name,
+                "release-candidate",
+                release_candidate_alt_name,
+            )
+            print(f"Created {release_candidate_alt_name} from release-candidate")
+
+        return True
+    except Exception as e:
+        print(f"Error creating tag copies: {e}", file=sys.stderr)
+        return False
+
+
+def create_redirect_page(
+    directory, default_landing_page, repository_name, repository_owner, action_path
+):
+    """
+    Create redirect page (index.html) and .nojekyll file.
+
+    :param directory: Root directory
+    :param default_landing_page: Default landing page
+    :param repository_name: Repository name
+    :param repository_owner: Repository owner
+    :param action_path: Path to action files
+    :return: bool, True if successful
+    """
+    try:
+        os.chdir(directory)
+
+        # Copy redirect.html to index.html
+        redirect_source = os.path.join(action_path, "redirect.html")
+        if os.path.exists(redirect_source):
+            shutil.copy2(redirect_source, "index.html")
+        else:
+            # Create a basic redirect page if redirect.html doesn't exist
+            redirect_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=./{default_landing_page}/">
+    <link rel="canonical" href="./{default_landing_page}/">
+</head>
+<body>
+    <p>If you are not redirected automatically, <a href="./{default_landing_page}/">click here</a>.</p>
+</body>
+</html>"""
+            with open("index.html", "w", encoding="utf-8") as f:
+                f.write(redirect_content)
+
+        # Update placeholders in index.html
+        with open("index.html", "r", encoding="utf-8") as f:
+            content = f.read()
+
+        content = content.replace("DEFAULT_LANDING_PAGE", default_landing_page)
+        content = content.replace("REPOSITORY", repository_name)
+        content = content.replace("OWNER", repository_owner)
+
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(content)
+
+        # Create .nojekyll file
+        Path(".nojekyll").touch()
+
+        print("Created redirect page and .nojekyll file")
+        return True
+    except Exception as e:
+        print(f"Error creating redirect page: {e}", file=sys.stderr)
+        return False
+
+
+def create_root_pkgdown_yml(directory, default_landing_page):
+    """
+    Create root-level pkgdown.yml file.
+
+    :param directory: Root directory
+    :param default_landing_page: Default landing page
+    :return: bool, True if successful
+    """
+    try:
+        os.chdir(directory)
+
+        source_pkgdown = os.path.join(default_landing_page, "pkgdown.yml")
+        if os.path.exists(source_pkgdown):
+            shutil.copy2(source_pkgdown, "pkgdown.yml")
+
+            # Update paths in pkgdown.yml
+            with open("pkgdown.yml", "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Use regex to update paths, avoiding the default landing page path
+            pattern = (
+                rf"(/(?:reference|articles))(?!/{re.escape(default_landing_page)})"
+            )
+            replacement = rf"/{default_landing_page}\1"
+            updated_content = re.sub(pattern, replacement, content)
+
+            with open("pkgdown.yml", "w", encoding="utf-8") as f:
+                f.write(updated_content)
+
+            print(f"Created root-level pkgdown.yml from {default_landing_page}")
+        else:
+            print(f"No pkgdown.yml found in {default_landing_page}")
+
+        return True
+    except Exception as e:
+        print(f"Error creating root-level pkgdown.yml: {e}", file=sys.stderr)
+        return False
+
+
 def main():
     """Main."""
     parser = argparse.ArgumentParser(
@@ -402,14 +643,72 @@ def main():
     parser.add_argument(
         "--base_url", required=True, help="Base URL to be used in the hrefs."
     )
+    parser.add_argument(
+        "--default_landing_page", help="Default landing page branch/tag."
+    )
+    parser.add_argument("--repository_name", help="Repository name.")
+    parser.add_argument("--repository_owner", help="Repository owner.")
+    parser.add_argument("--action_path", help="Path to GitHub action files.")
+    parser.add_argument(
+        "--latest_tag_alt_name", default="", help="Alternative name for latest tag."
+    )
+    parser.add_argument(
+        "--release_candidate_alt_name",
+        default="",
+        help="Alternative name for release candidate.",
+    )
+    parser.add_argument(
+        "--setup_only",
+        action="store_true",
+        help="Only run setup steps, skip HTML processing.",
+    )
 
     args = parser.parse_args()
 
+    # Run setup steps if requested
+    if args.setup_only or (
+        args.default_landing_page and args.repository_name and args.repository_owner
+    ):
+        print("Running setup steps...")
+
+        # Step 1: Create tag copies
+        if not create_tag_copies(
+            args.directory, args.latest_tag_alt_name, args.release_candidate_alt_name
+        ):
+            print("Failed to create tag copies", file=sys.stderr)
+            return 1
+
+        # Step 2: Create redirect page
+        if args.default_landing_page and args.repository_name and args.repository_owner:
+            if not create_redirect_page(
+                args.directory,
+                args.default_landing_page,
+                args.repository_name,
+                args.repository_owner,
+                args.action_path or "",
+            ):
+                print("Failed to create redirect page", file=sys.stderr)
+                return 1
+
+        # Step 3: Create root-level pkgdown.yml
+        if args.default_landing_page:
+            if not create_root_pkgdown_yml(args.directory, args.default_landing_page):
+                print("Failed to create root-level pkgdown.yml", file=sys.stderr)
+                return 1
+
+    # Skip HTML processing if setup_only is True
+    if args.setup_only:
+        print("Setup completed. Skipping HTML processing.")
+        return 0
+
+    # Run HTML processing steps
     process_html_files_in_directory(
         args.directory, args.pattern, args.refs_order, args.base_url
     )
     update_search_json_urls(args.directory, args.pattern, args.base_url)
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
